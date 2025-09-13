@@ -8,7 +8,7 @@
 property p1; 
 @(posedge clk) $rose(A) |=> B; 
 endproperty
-assert p roperty(p1);
+assert property(p1);
 ```
 
 ## Q2: Signal stable 3 cycles 🛑
@@ -160,6 +160,7 @@ assert property(p19);
 property p20;
  @(posedge clk) $rose(pulse) |=> ##1 !$fell(pulse);
  endproperty
+
 assert property(p20);
 ```
 
@@ -168,6 +169,7 @@ assert property(p20);
 sequence 
 s21; req ##1 ack ##1 done; 
 endsequence
+
 property 
 p21; @(posedge clk) s21;
  endproperty
@@ -214,255 +216,343 @@ assert property(p26);
 
 ## Q27: A low -> B must be 1 🟢
 ```sh
-property p27; @(posedge clk) !A |-> B; endproperty
+property p27; @(posedge clk) !A |-> B; 
+endproperty
 assert property(p27);
 ```
 
 ## Q28: B must remain low during reset 🔒
 ```sh
-property p28; @(posedge clk) reset |-> !B; endproperty
+property p28; @(posedge clk) reset |-> !B; 
+endproperty
 assert property(p28);
 ```
 
 ## Q29: A high 2 times -> B must high after 🔁
 ```sh
-sequence s29; A ##1 A; endsequence
-property p29; @(posedge clk) s29 |=> B; endproperty
+sequence s29;
+ A ##1 A; 
+endsequence
+property p29; @(posedge clk) s29 |=> B; 
+endproperty
 assert property(p29);
 ```
 
 ## Q30: Rising edge of A -> C stable 🧊
 ```sh
-property p30; @(posedge clk) $rose(A) |=> $stable(C)[*3]; endproperty
+property p30;
+ @(posedge clk) $rose(A) |=> $stable(C)[*3]; 
+endproperty
 assert property(p30);
 ```
 
 ## Q31: B never high for >4 cycles ⛔
 ```sh
-property p31; @(posedge clk) B[*5] |-> 0; endproperty
+property p31;
+ @(posedge clk) B[*5] |-> 0;
+ endproperty
 assert property(p31);
 ```
 
 ## Q32: Count must increment 📈
 ```sh
-property p32; @(posedge clk) !reset |-> count == $past(count)+1; endproperty
+property p32;
+ @(posedge clk) !reset |-> count == $past(count)+1; 
+ endproperty
 assert property(p32);
 ```
 
 ## Q33: A must follow B ⏩
 ```sh
-property p33; @(posedge clk) $rose(B) |=> $rose(A); endproperty
+property p33;
+ @(posedge clk) $rose(B) |=> $rose(A);
+ endproperty
 assert property(p33);
 ```
 
 ## Q34: If C rises, D must fall ⤵️
 ```sh
-property p34; @(posedge clk) $rose(C) |=> $fell(D); endproperty
+property p34;
+ @(posedge clk) $rose(C) |=> $fell(D);
+  endproperty
 assert property(p34);
 ```
 
 ## Q35: Req -> Ack before 5 cycles 📨
 ```sh
-property p35; @(posedge clk) req |=> ##[1:5] ack; endproperty
+property p35;
+ @(posedge clk) req |=> ##[1:5] ack; 
+ endproperty
 assert property(p35);
 ```
 
 ## Q36: Toggle every clock 🔂
 ```sh
-property p36; @(posedge clk) sig != $past(sig); endproperty
+property p36;
+ @(posedge clk) sig != $past(sig); 
+ endproperty
 assert property(p36);
 ```
 
 ## Q37: D stable until enable 💾
 ```sh
-property p37; @(posedge clk) !enable |-> $stable(D); endproperty
+property p37; 
+@(posedge clk) !enable |-> $stable(D);
+ endproperty
 assert property(p37);
 ```
 
 ## Q38: Ready -> Valid before ⏪
 ```sh
-property p38; @(posedge clk) ready |-> valid; endproperty
+property p38; 
+@(posedge clk) ready |-> valid; 
+endproperty
 assert property(p38);
 ```
 
 ## Q39: Pulse width exactly 2 cycles ⌛
 ```sh
-property p39; @(posedge clk) $rose(pulse) |=> pulse[*2] ##1 !$fell(pulse); endproperty
+property p39; 
+@(posedge clk) $rose(pulse) |=> pulse[*2] ##1 !$fell(pulse);
+ endproperty
 assert property(p39);
 ```
 
 ## Q40: Reset low -> Output unknown ❓
 ```sh
-property p40; @(posedge clk) !reset |-> !$isunknown(out); endproperty
+property p40;
+ @(posedge clk) !reset |-> !$isunknown(out); 
+ endproperty
 assert property(p40);
 ```
 
 ## Q41: A rise -> B must 1, C must 0 ⚖️
 ```sh
-property p41; @(posedge clk) $rose(A) |=> (B && !C); endproperty
+property p41; 
+@(posedge clk) $rose(A) |=> (B && !C);
+ endproperty
 assert property(p41);
 ```
 
 ## Q42: Req & Ack not together 🚫
 ```sh
-property p42; @(posedge clk) !(req && ack); endproperty
+property p42;
+ @(posedge clk) !(req && ack);
+  endproperty
 assert property(p42);
 ```
 
 ## Q43: Enable -> Count increments 🔢
 ```sh
-property p43; @(posedge clk) enable |=> count==$past(count)+1; endproperty
+property p43; 
+@(posedge clk) enable |=> count==$past(count)+1;
+ endproperty
 assert property(p43);
 ```
 
 ## Q44: Valid must last 1 cycle only ⏹️
 ```sh
-property p44; @(posedge clk) $rose(valid) |=> !valid[*2]; endproperty
+property p44;
+ @(posedge clk) $rose(valid) |=> !valid[*2]; 
+ endproperty
 assert property(p44);
 ```
 
 ## Q45: C must toggle every 2 cycles 🔁
 ```sh
-property p45; @(posedge clk) $rose(C) |=> ##2 $fell(C); endproperty
+property p45;
+ @(posedge clk) $rose(C) |=> ##2 $fell(C);
+  endproperty
 assert property(p45);
 ```
 
 ## Q46: No glitch on signal 🚫⚡
 ```sh
-property p46; @(posedge clk) !$changed(sig) within 1ns; endproperty
+property p46; 
+@(posedge clk) !$changed(sig) within 1ns;
+ endproperty
 assert property(p46);
 ```
 
 ## Q47: Reset high keeps Q low 🛑
 ```sh
-property p47; @(posedge clk) reset |-> (Q==0); endproperty
+property p47;
+ @(posedge clk) reset |-> (Q==0);
+  endproperty
 assert property(p47);
 ```
 
 ## Q48: Start must eventually Done 🎯
 ```sh
-property p48; @(posedge clk) start |=> ##[1:$] done; endproperty
+property p48; 
+@(posedge clk) start |=> ##[1:$] done;
+ endproperty
 assert property(p48);
 ```
 
 ## Q49: Toggle exactly once per 4 cycles ⏳
 ```sh
-property p49; @(posedge clk) sig |=> sig[*4]; endproperty
+property p49; 
+@(posedge clk) sig |=> sig[*4];
+ endproperty
 assert property(p49);
 ```
 
 ## Q50: A & B never equal 🚫==
 ```sh
-property p50; @(posedge clk) !(A==B); endproperty
+property p50;
+ @(posedge clk) !(A==B); 
+ endproperty
 assert property(p50);
 ```
 
 ## Q51: Req -> Ack in 1 cycle 📨
 ```sh
-property p51; @(posedge clk) req |=> ##1 ack; endproperty
+property p51; 
+@(posedge clk) req |=> ##1 ack; 
+endproperty
 assert property(p51);
 ```
 
 ## Q52: Enable holds output constant ⛓️
 ```sh
-property p52; @(posedge clk) enable |-> $stable(out); endproperty
+property p52;
+ @(posedge clk) enable |-> $stable(out); 
+ endproperty
 assert property(p52);
 ```
 
 ## Q53: Counter rolls after 15 🔄
 ```sh
-property p53; @(posedge clk) count==15 |=> ##1 count==0; endproperty
+property p53; 
+@(posedge clk) count==15 |=> ##1 count==0;
+ endproperty
 assert property(p53);
 ```
 
 ## Q54: Data valid -> parity check 🧮
 ```sh
-property p54; @(posedge clk) valid |-> (^data == parity); endproperty
+property p54;
+ @(posedge clk) valid |-> (^data == parity);'
+  endproperty
 assert property(p54);
 ```
 
 ## Q55: Handshake req->ack within 2 cycles 🤝
 ```sh
-property p55; @(posedge clk) req |=> ##[1:2] ack; endproperty
+property p55; 
+@(posedge clk) req |=> ##[1:2] ack;
+ endproperty
 assert property(p55);
 ```
 
 ## Q56: FIFO full -> write disabled 📦
 ```sh
-property p56; @(posedge clk) full |-> !write; endproperty
+property p56;
+ @(posedge clk) full |-> !write; 
+ endproperty
 assert property(p56);
 ```
 
 ## Q57: FIFO empty -> read disabled 📭
 ```sh
-property p57; @(posedge clk) empty |-> !read; endproperty
+property p57; 
+@(posedge clk) empty |-> !read;
+ endproperty
 assert property(p57);
 ```
 
 ## Q58: Load -> Count=data_in 📥
 ```sh
-property p58; @(posedge clk) load |=> count==data_in; endproperty
+property p58;
+ @(posedge clk) load |=> count==data_in;
+  endproperty
 assert property(p58);
 ```
 
 ## Q59: JK flipflop toggle 🔀
 ```sh
-property p59; @(posedge clk) (J && K) |=> Q != $past(Q); endproperty
+property p59;
+ @(posedge clk) (J && K) |=> Q != $past(Q);
+  endproperty
 assert property(p59);
 ```
 
 ## Q60: FSM reset -> state=S0 🔄
-```sh
-property p60; @(posedge clk) reset |-> state==S0; endproperty
+```systemverilog
+property p60;
+ @(posedge clk) reset |-> state==S0;
+  endproperty
+
 assert property(p60);
 ```
 
 ## Q61: Sequence 101 detect 🔍
-```sh
-sequence s61; 1 ##1 0 ##1 1; endsequence
-property p61; @(posedge clk) s61 |=> detect; endproperty
+```systemverilog
+sequence s61;
+ 1 ##1 0 ##1 1; 
+ endsequence
+
+property p61; 
+@(posedge clk) s61 |=> detect; 
+endproperty
+
 assert property(p61);
 ```
 
 ## Q62: A stable until B high 🛑
 ```sh
-property p62; @(posedge clk) $rose(A) |-> (A throughout !B); endproperty
+property p62;
+ @(posedge clk) $rose(A) |-> (A throughout !B);
+  endproperty
 assert property(p62);
 ```
 
 ## Q63: Ack must follow Req 📨
 ```sh
-property p63; @(posedge clk) req |=> ##[1:$] ack; endproperty
+property p63;
+ @(posedge clk) req |=> ##[1:$] ack; 
+ endproperty
 assert property(p63);
 ```
 
 ## Q64: Data bus not X ❌
 ```sh
-property p64; @(posedge clk) !$isunknown(data); endproperty
+property p64;
+ @(posedge clk) !$isunknown(data);
+  endproperty
 assert property(p64);
 ```
 
 ## Q65: Reset clears all regs 🧹
 ```sh
-property p65; @(posedge clk) reset |-> regs==0; endproperty
+property p65;
+ @(posedge clk) reset |-> regs==0; 
+ endproperty
 assert property(p65);
 ```
 
 ## Q66: Valid stable till ready ⛓️
 ```sh
-property p66; @(posedge clk) valid |-> (valid throughout !ready); endproperty
+property p66;
+ @(posedge clk) valid |-> (valid throughout !ready);
+ endproperty
 assert property(p66);
 ```
 
 ## Q67: Done within 10 cycles ⏲️
 ```sh
-property p67; @(posedge clk) start |=> ##[1:10] done; endproperty
+property p67; 
+@(posedge clk) start |=> ##[1:10] done; 
+endproperty
 assert property(p67);
 ```
 
 ## Q68: Parity error detect ⚠️
 ```sh
-property p68; @(posedge clk) (^data)!=parity |-> error; endproperty
+property p68;
+ @(posedge clk) (^data)!=parity |-> error;
+  endproperty
 assert property(p68);
 ```
 

@@ -9,17 +9,18 @@
 assert (expr) else $error("Failed");
 
 assert property (@(posedge clk) expr);
-
+````
+---
 1.2 assert, assume, cover
-
+```shell
 assert property (@(posedge clk) a |-> b);
 
 assume property (@(posedge clk) req |-> gnt);
 
 cover property (@(posedge clk) req |-> gnt);
-
+```
 1.3 Default clocking block
-
+````
 default clocking cb @(posedge clk);
 endclocking
 
@@ -37,6 +38,10 @@ endsequence
 property p1;
   seq1;
 endproperty
+````
+
+---
+````systemverilog
 
 2.2 Overlapping implication
 
@@ -47,8 +52,12 @@ assert property (@(posedge clk) a |-> b);
 assert property (@(posedge clk) a |=> b);
 
 2.4 Sequential delays
-
 a ##3 b;
+
+````
+
+---
+````systemverilog
 
 2.5 Repetition operators
 
