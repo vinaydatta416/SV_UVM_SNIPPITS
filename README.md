@@ -148,19 +148,11 @@ foreach(arr2d[i,j]) arr2d[i,j] = i+j;
 ```
 
 * Insert / delete in dynamic 2D or queue arrays
-
- 
-
-
-
-
-
-
 ---
 
  ## 9️⃣ Structures and Unions in SV
 
-- **Structures**
+**Structures**
 ```systemverilog
 typedef struct {
   int x;

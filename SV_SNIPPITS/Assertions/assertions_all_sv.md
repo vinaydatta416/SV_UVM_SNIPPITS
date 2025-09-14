@@ -166,13 +166,14 @@ assert property(p20);
 
 ## Q21: Req -> Ack -> Done sequence 🛠️
 ```sh
-sequence 
-s21; req ##1 ack ##1 done; 
+sequence s21;
+ req ##1 ack ##1 done; 
 endsequence
 
-property 
-p21; @(posedge clk) s21;
+property p21;
+ @(posedge clk) s21;
  endproperty
+
 assert property(p21);
 ```
 
@@ -210,20 +211,24 @@ assert property(p25);
 
 ## Q26: Valid -> Enable next cycle 📡
 ```sh
-property p26; @(posedge clk) valid |=> ##1 enable; endproperty
+property p26;
+ @(posedge clk) valid |=> ##1 enable;
+  endproperty
 assert property(p26);
 ```
 
 ## Q27: A low -> B must be 1 🟢
 ```sh
-property p27; @(posedge clk) !A |-> B; 
+property p27;
+ @(posedge clk) !A |-> B; 
 endproperty
 assert property(p27);
 ```
 
 ## Q28: B must remain low during reset 🔒
 ```sh
-property p28; @(posedge clk) reset |-> !B; 
+property p28;
+ @(posedge clk) reset |-> !B; 
 endproperty
 assert property(p28);
 ```
@@ -558,25 +563,33 @@ assert property(p68);
 
 ## Q69: Counter never >MAX ⛔
 ```sh
-property p69; @(posedge clk) count <= MAX; endproperty
+property p69;
+ @(posedge clk) count <= MAX;
+  endproperty
 assert property(p69);
 ```
 
 ## Q70: Start pulse width 1 cycle 📏
 ```sh
-property p70; @(posedge clk) $rose(start) |=> !start; endproperty
+property p70;\
+ @(posedge clk) $rose(start) |=> !start;
+  endproperty
 assert property(p70);
 ```
 
 ## Q71: Request must not overlap 🚫
 ```sh
-property p71; @(posedge clk) !(req && $past(req)); endproperty
+property p71; 
+@(posedge clk) !(req && $past(req)); 
+endproperty
 assert property(p71);
 ```
 
 ## Q72: Reset synchronizes clk 🔔
 ```sh
-property p72; @(posedge clk) reset |-> ##1 !reset; endproperty
+property p72;
+ @(posedge clk) reset |-> ##1 !reset; 
+ endproperty
 assert property(p72);
 ```
 
@@ -2108,3 +2121,156 @@ property p170;
 endproperty
 assert property(p170);
 ```
+
+---
+---
+
+Good question Vinay 👍 Let’s decode what these **`##(… )` delays** mean in **SystemVerilog Assertions (SVA)**.
+
+---
+# 🔹 Meaning of `##N` in SVA
+
+* `##N` means **delay by N clock cycles** (relative to the sampling clock event).
+* Example:
+
+  ```systemverilog
+  @(posedge clk) a |=> ##2 b;
+  ```
+
+  Means:
+
+  * At **posedge clk**, if `a` is true,
+  * Then **2 cycles later**, `b` must be true.
+
+---
+
+
+Excellent catch ✅ Vinay! You’re absolutely right — **a clock signal is generated with a fixed duty cycle by design**, so usually we don’t keep writing assertions to check *clk duty cycle* unless:
+
+* We are **verifying a clock-generation module** (PLL, divider, clock-gating logic, etc.), where duty cycle could vary.
+* We want to catch **clock glitches / duty-cycle distortion** in simulation.
+
+👉 In most DV projects, we use duty-cycle checks for **functional signals**, not the root clock.
+For example:
+
+---
+
+## 🔹 Why Check Duty Cycle of Non-Clock Signals?
+
+Some input/output signals in protocols must be **high/low for a specific percentage of a period**:
+
+* **Enable signals** (must be HIGH for 50% of transaction time).
+* **PWM signals** (duty cycle defines average power).
+* **Valid/Ready handshakes** (must stay stable for part of the cycle).
+* **Generated clocks inside DUT** (from dividers/gating → may distort).
+
+---
+
+## 🔹 Example: Input signal duty cycle check
+
+Say we have a **PWM output** (not the main clk), period = 8 cycles.
+
+### 1. 50% duty
+
+```systemverilog
+// Check PWM is HIGH for 4 cycles, LOW for 4 cycles
+property pwm_50;
+  @(posedge clk) $rose(pwm) |=> ##4 $fell(pwm);   // High=4
+endproperty
+assert property(pwm_50);
+
+property pwm_50_low;
+  @(posedge clk) $fell(pwm) |=> ##4 $rose(pwm);   // Low=4
+endproperty
+assert property(pwm_50_low);
+```
+
+---
+
+### 2. 75% duty
+
+```systemverilog
+// Check PWM is HIGH for 6 cycles, LOW for 2 cycles
+property pwm_75;
+  @(posedge clk) $rose(pwm) |=> ##6 $fell(pwm);
+endproperty
+assert property(pwm_75);
+
+property pwm_75_low;
+  @(posedge clk) $fell(pwm) |=> ##2 $rose(pwm);
+endproperty
+assert property(pwm_75_low);
+```
+
+---
+
+## 🔹 Bullet Recap
+
+* **Root clock** duty cycle: rarely checked in DV unless verifying PLL/divider.
+* **Functional signals** (like PWM, Enable, Valid, Output waveform): duty cycle matters → write SVA.
+* Always check **HIGH width** (`$rose` → `$fell`) and **LOW width** (`$fell` → `$rose`).
+
+---
+
+👉 Do you want me to build you a **mini SystemVerilog testbench** with a PWM generator (output signal) and duty-cycle assertions (50%, 75%) so you can simulate and see how these checks work?
+
+
+# 🔹 When we write things like `##(2*N/3)`
+
+It means **delay for (2N/3) clock cycles** before the next event must happen.
+
+Let’s map each one:
+
+---
+
+### ✅ `##(2*N/3)`
+
+* Wait for **two-thirds of the period**.
+* Used when signal must stay LOW for 2/3rd of its period.
+* Example: For N=6 cycles → delay = 4 cycles.
+
+---
+
+### ✅ `##(3*N/5)`
+
+* Wait for **3/5 of the period**.
+* Used when signal HIGH duration = 60%.
+* Example: N=10 cycles → delay = 6 cycles.
+
+---
+
+### ✅ `##(3*N/4)`
+
+* Wait for **three-fourths of the period**.
+* Used when signal HIGH duration = 75%.
+* Example: N=8 cycles → delay = 6 cycles.
+
+---
+
+### ✅ `##(N/4)`
+
+* Wait for **one-fourth of the period**.
+* Used when signal LOW duration = 25%.
+* Example: N=8 cycles → delay = 2 cycles.
+
+---
+
+# 🔹 Intuitive View
+
+Think of N as **total signal period** (in cycles).
+
+* **High time cycles = duty% × N**
+* **Low time cycles = (1 − duty%) × N**
+* `##(duty * N)` → enforce how many cycles signal stays HIGH.
+* `##((1-duty) * N)` → enforce how many cycles signal stays LOW.
+
+---
+
+⚡ Example: 75% duty
+
+* High = 3N/4 → `##(3*N/4)` between rise → fall.
+* Low = N/4 → `##(N/4)` between fall → rise.
+
+---
+
+👉 Vinay, do you want me to make a **table** where I show each duty cycle (50, 33, 60, 75) → exact `##` delays for HIGH and LOW with N values plugged in (like N=6, N=8, etc.) so it’s crystal clear?
