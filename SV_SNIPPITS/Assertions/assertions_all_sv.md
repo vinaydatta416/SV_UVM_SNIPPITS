@@ -438,7 +438,7 @@ assert property(p53);
 ## Q54: Data valid -> parity check 🧮
 ```sh
 property p54;
- @(posedge clk) valid |-> (^data == parity);'
+ @(posedge clk) valid |-> (^data == parity);
   endproperty
 assert property(p54);
 ```
@@ -495,11 +495,11 @@ assert property(p60);
 ## Q61: Sequence 101 detect 🔍
 ```systemverilog
 sequence s61;
- 1 ##1 0 ##1 1; 
- endsequence
+  in ##1 !in ##1 in;   // detects pattern 101 on 'in'
+endsequence
 
 property p61; 
-@(posedge clk) s61 |=> detect; 
+  @(posedge clk) s61 |=> detect; 
 endproperty
 
 assert property(p61);
@@ -595,117 +595,156 @@ assert property(p72);
 
 ## Q73: Ack low until req high ⏳
 ```sh
-property p73; @(posedge clk) !req |-> !ack; endproperty
+property p73; 
+@(posedge clk) !req |-> !ack;
+ endproperty
 assert property(p73);
 ```
 
 ## Q74: A follows B delay 2 cycles ⏩
 ```sh
-property p74; @(posedge clk) $rose(B) |=> ##2 A; endproperty
+property p74; 
+@(posedge clk) $rose(B) |=> ##2 A;
+ endproperty
 assert property(p74);
 ```
 
 ## Q75: Load->Q=data ⬇️
 ```sh
-property p75; @(posedge clk) load |=> Q==data; endproperty
+property p75;
+ @(posedge clk) load |=> Q==data;
+  endproperty
 assert property(p75);
 ```
 
 ## Q76: Reset->FSM idle 😴
 ```sh
-property p76; @(posedge clk) reset |-> state==IDLE; endproperty
+property p76;
+ @(posedge clk) reset |-> state==IDLE; 
+ endproperty
 assert property(p76);
 ```
 
 ## Q77: Rising edge of clk toggles q 🔄
 ```sh
-property p77; @(posedge clk) q != $past(q); endproperty
+property p77;
+ @(posedge clk) q != $past(q);
+  endproperty
 assert property(p77);
 ```
 
 ## Q78: Ack must deassert after req 🚪
 ```sh
-property p78; @(posedge clk) $fell(req) |=> ##[0:1] !ack; endproperty
+property p78;
+ @(posedge clk) $fell(req) |=> ##[0:1] !ack;
+  endproperty
 assert property(p78);
 ```
 
 ## Q79: Counter increments only when enable 📈
 ```sh
-property p79; @(posedge clk) !enable |-> count==$past(count); endproperty
+property p79; 
+@(posedge clk) !enable |-> count==$past(count); endproperty
 assert property(p79);
 ```
 
 ## Q80: Data valid until ack 📨
 ```sh
-property p80; @(posedge clk) valid |-> (valid throughout !ack); endproperty
+property p80;
+ @(posedge clk) valid |-> (valid throughout !ack); endproperty
 assert property(p80);
 ```
 
 ## Q81: Ready in 4-6 cycles 🕓
 ```sh
-property p81; @(posedge clk) valid |=> ##[4:6] ready; endproperty
+property p81; 
+@(posedge clk) valid |=> ##[4:6] ready; 
+endproperty
 assert property(p81);
 ```
 
 ## Q82: A high -> B low next 2 cycles ⬇️
 ```sh
-property p82; @(posedge clk) A |=> !B[*2]; endproperty
+property p82;
+ @(posedge clk) A |=> !B[*2];
+  endproperty
 assert property(p82);
 ```
 
 ## Q83: Req->Ack->Done ✔️
 ```sh
-sequence s83; req ##1 ack ##1 done; endsequence
-property p83; @(posedge clk) s83; endproperty
+sequence s83; 
+req ##1 ack ##1 done;
+ endsequence
+
+property p83;
+ @(posedge clk) s83;
+  endproperty
 assert property(p83);
 ```
 
 ## Q84: J=1,K=0 -> Set 🟢
 ```sh
-property p84; @(posedge clk) (J && !K) |=> Q; endproperty
+property p84;
+ @(posedge clk) (J && !K) |=> Q;
+  endproperty
 assert property(p84);
 ```
 
 ## Q85: J=0,K=1 -> Reset 🔴
 ```sh
-property p85; @(posedge clk) (!J && K) |=> !Q; endproperty
+property p85;
+ @(posedge clk) (!J && K) |=> !Q;
+  endproperty
 assert property(p85);
 ```
 
 ## Q86: Counter down mode ⬇️
 ```sh
-property p86; @(posedge clk) down |=> count==$past(count)-1; endproperty
+property p86;
+ @(posedge clk) down |=> count==$past(count)-1; endproperty
 assert property(p86);
 ```
 
 ## Q87: Counter up mode ⬆️
 ```sh
-property p87; @(posedge clk) up |=> count==$past(count)+1; endproperty
+property p87;
+ @(posedge clk) up |=> count==$past(count)+1; endproperty
 assert property(p87);
 ```
 
 ## Q88: A toggles every 3 cycles 🔂
 ```sh
-property p88; @(posedge clk) $rose(A) |=> ##3 $fell(A); endproperty
+property p88;
+ @(posedge clk) $rose(A) |=> ##3 $fell(A); 
+ endproperty
 assert property(p88);
 ```
 
 ## Q89: Req->Ack in 1-3 cycles ⏱️
 ```sh
-property p89; @(posedge clk) req |=> ##[1:3] ack; endproperty
+property p89;
+ @(posedge clk) req |=> ##[1:3] ack;
+  endproperty
 assert property(p89);
 ```
 
 ## Q90: Done stays high 2 cycles ✌️
 ```sh
-property p90; @(posedge clk) $rose(done) |=> done[*2]; endproperty
+property p90; 
+@(posedge clk) $rose(done) |=> done[*2];
+ endproperty
 assert property(p90);
 ```
 
 ## Q91: FSM detect "110" 🔍
 ```sh
-sequence s91; 1 ##1 1 ##1 0; endsequence
-property p91; @(posedge clk) s91 |=> detect; endproperty
+sequence s91;
+ 1 ##1 1 ##1 0;
+  endsequence
+property p91;
+ @(posedge clk) s91 |=> detect; 
+ endproperty
 assert property(p91);
 ```
 
