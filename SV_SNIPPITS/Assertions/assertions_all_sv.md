@@ -599,6 +599,13 @@ property p73;
 @(posedge clk) !req |-> !ack;
  endproperty
 assert property(p73);
+
+// Q73: Ack low until req high ⏳
+property p73;
+  @(posedge clk) !req |-> !ack until req;
+endproperty
+assert property(p73);
+
 ```
 
 ## Q74: A follows B delay 2 cycles ⏩
