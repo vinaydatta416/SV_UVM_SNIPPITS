@@ -18,11 +18,10 @@ git push -u origin main           # push to GitHub
 git status                        # check modified/untracked files
 git add .                         # stage all changes
 git commit -m "msg"               # commit changes
-
-
-
 git push                          # push changes to GitHub
 git pull                          # fetch & merge latest from GitHub
+
+
 
 
 
