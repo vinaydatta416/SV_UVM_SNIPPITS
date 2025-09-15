@@ -225,3 +225,128 @@ coverpoint addr {
 
 ---
 
+
+Got it 👍
+Let’s carefully **explain Cross Coverage** and then give **multiple small examples** with proper syntax.
+
+---
+
+## 🔹 What is Cross Coverage?
+
+* **Definition**: Cross coverage is used to measure combinations of values between **two or more coverpoints or variables** inside the same covergroup.
+* **When to use**:
+
+  * When interaction between signals matters.
+  * Example: Address vs Data, Opcode vs Enable, Read vs Write.
+  * Assertions **check correctness of timing/behavior**, while **cross coverage ensures you have tested all combinations**.
+
+---
+
+## 🔹 Syntax
+
+```systemverilog
+<cross_name> : cross <coverpoint_1>, <coverpoint_2>, ... , <coverpoint_n>;
+```
+
+---
+
+## 🔹 Example 1 – Simple Cross Coverage
+
+```systemverilog
+bit [3:0] addr, data;
+
+covergroup cg @(posedge clk);
+  cp_addr : coverpoint addr;
+  cp_data : coverpoint data;
+  
+  addrXdata : cross cp_addr, cp_data; // cross coverage of addr & data
+endgroup
+```
+
+👉 Ensures all possible `(addr, data)` combinations are covered.
+
+---
+
+## 🔹 Example 2 – Cross with Condition
+
+```systemverilog
+bit [1:0] mode;
+bit en;
+
+covergroup cg @(posedge clk);
+  cp_mode : coverpoint mode;
+  cp_en   : coverpoint en;
+  
+  modeXen : cross cp_mode, cp_en; // cross coverage between mode & enable
+endgroup
+```
+
+👉 Checks interaction between `mode` values and enable signal.
+
+---
+
+## 🔹 Example 3 – Cross with Ignore Bins
+
+```systemverilog
+bit [2:0] opcode;
+bit [1:0] burst;
+
+covergroup cg @(posedge clk);
+  cp_opcode : coverpoint opcode;
+  cp_burst  : coverpoint burst;
+  
+  opXburst : cross cp_opcode, cp_burst {
+    ignore_bins invalid_combo = binsof(cp_opcode) intersect {3,5} &&
+                                binsof(cp_burst) intersect {2};
+  }
+endgroup
+```
+
+👉 Ignores illegal `(opcode=3 or 5, burst=2)` combinations.
+
+---
+
+## 🔹 Example 4 – Cross Between Variable and Coverpoint
+
+```systemverilog
+bit [3:0] addr;
+bit valid;
+
+covergroup cg @(posedge clk);
+  cp_addr : coverpoint addr;
+  
+  validXaddr : cross valid, cp_addr; 
+endgroup
+```
+
+👉 Crosses raw `valid` signal with coverpoint `addr`.
+
+---
+
+## 🔹 Example 5 – Weighted Cross Coverage
+
+```systemverilog
+bit [1:0] cmd;
+bit en;
+
+covergroup cg @(posedge clk);
+  cp_cmd : coverpoint cmd;
+  cp_en  : coverpoint en;
+  
+  cmdXen : cross cp_cmd, cp_en {
+    bins cmd_en = binsof(cp_cmd) intersect {2} && binsof(cp_en) intersect {1};
+  }
+endgroup
+```
+
+👉 Forces a **special bin** for `(cmd=2, en=1)`.
+
+---
+
+✅ **Summary**
+
+* Use **cross coverage** when you want to measure **all meaningful combinations** of variables.
+* Use in **coverage**, not assertions. Assertions check correctness, cross coverage checks *completeness of testing*.
+
+---
+
