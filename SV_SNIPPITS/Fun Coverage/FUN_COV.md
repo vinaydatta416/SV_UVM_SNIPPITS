@@ -1,9 +1,7 @@
-Perfect 👍 — you pasted a **SystemVerilog functional coverage tutorial on transitions, ignore\_bins, and illegal\_bins**, with examples.
-Now you want me to **explain each in detail**, step by step. Let’s go topic by topic with **concept, syntax, example, and explanation**.
-
----
+```markdown
 
 # 📘 SystemVerilog Transition Bins & Special Bins (Detailed Explanation)
+```
 
 ---
 
