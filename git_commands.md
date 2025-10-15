@@ -5,10 +5,6 @@
 ---
 ```shell
 
-#=========================================================
-
-
-
 git add .                         # stage all files
 git commit -m "Initial commit"    # commit with message
 git branch -M main                # rename branch to main
@@ -21,10 +17,4 @@ git commit -m "msg"               # commit changes
 git push                          # push changes to GitHub
 git pull                          # fetch & merge latest from GitHub
 
-
-
-
-
-
-#=========================================================
 ```
