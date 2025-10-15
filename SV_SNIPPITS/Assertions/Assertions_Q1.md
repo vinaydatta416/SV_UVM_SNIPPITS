@@ -4,6 +4,7 @@
 **Assumption:** “C should be stable while B is high, and **when** B goes low C **must change in that same cycle**.”
 
 ```systemverilog
+
 // Q1: A -> next cycle B high and C stable while B==1; when B falls, C must change in that same cycle
 property Q1_stable_until_B_falls;
   @(posedge clk) disable iff (reset)
