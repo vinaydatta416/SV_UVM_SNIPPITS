@@ -11,6 +11,7 @@ import uvm_pkg::*;                 // Import all UVM base classes
 // -----------------------------------------------------------
 class write_xtn extends uvm_sequence_item;
 
+
 rand int a;                      // Declare a random integer variable
 
 `uvm_object_utils(write_xtn)    // Register with factory
