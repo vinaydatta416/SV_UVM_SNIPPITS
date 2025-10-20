@@ -1,1008 +1,3075 @@
-//===========================================
-// Q1: A rise -> B high next cycle 🚀
-property p1; @(posedge clk) $rose(A) |=> B; endproperty
-assert property(p1);
-
-//===========================================
-// Q2: Signal stable 3 cycles 🛑
-property p2; @(posedge clk) $stable(sig)[*3]; endproperty
-assert property(p2);
-
-//===========================================
-// Q3: B falls -> C low next cycle ⬇️
-property p3; @(posedge clk) $fell(B) |=> !C; endproperty
-assert property(p3);
-
-//===========================================
-// Q4: A high -> C must toggle next cycle 🔀
-property p4; @(posedge clk) A |=> C != $past(C); endproperty
-assert property(p4);
-
-//===========================================
-// Q5: A rising -> B stays 1 for 2 cycles ✌️
-property p5; @(posedge clk) $rose(A) |=> B[*2]; endproperty
-assert property(p5);
-
-//===========================================
-// Q6: C must always be 0 when reset active ❌
-property p6; @(posedge clk) reset |-> C==0; endproperty
-assert property(p6);
-
-//===========================================
-// Q7: D rising -> E low for 3 cycles 📉
-property p7; @(posedge clk) $rose(D) |=> !E[*3]; endproperty
-assert property(p7);
-
-//===========================================
-// Q8: Clock duty cycle 50% ⏱️
-property p8; @(posedge clk) $rose(clk) |=> ##1 $fell(clk); endproperty
-assert property(p8);
-
-//===========================================
-// Q9: Signal toggles every cycle 🔄
-property p9; @(posedge clk) sig != $past(sig); endproperty
-assert property(p9);
-
-//===========================================
-// Q10: A high -> B low same cycle ⚡
-property p10; @(posedge clk) A |-> !B; endproperty
-assert property(p10);
-
-//===========================================
-// Q11: A goes high -> B goes high in 2 cycles ⏩
-property p11; @(posedge clk) $rose(A) |=> ##2 B; endproperty
-assert property(p11);
-
-//===========================================
-// Q12: If enable, then data stable 📊
-property p12; @(posedge clk) enable |-> $stable(data); endproperty
-assert property(p12);
-
-//===========================================
-// Q13: A and B never high together 🚫
-property p13; @(posedge clk) !(A && B); endproperty
-assert property(p13);
-
-//===========================================
-// Q14: Req -> Ack within 3 cycles 📬
-property p14; @(posedge clk) req |=> ##[1:3] ack; endproperty
-assert property(p14);
-
-//===========================================
-// Q15: Start -> Done in 5 cycles ✅
-property p15; @(posedge clk) start |=> ##5 done; endproperty
-assert property(p15);
-
-//===========================================
-// Q16: Reset -> Count=0 🔢
-property p16; @(posedge clk) reset |-> (count==0); endproperty
-assert property(p16);
-
-//===========================================
-// Q17: Toggle signal every 2 cycles ♻️
-property p17; @(posedge clk) $rose(tg) |=> ##2 $fell(tg); endproperty
-assert property(p17);
-
-//===========================================
-// Q18: A high -> keep B until C high ⏳
-property p18; @(posedge clk) A |-> (B throughout !C); endproperty
-assert property(p18);
-
-//===========================================
-// Q19: Data changes only when enable 🔐
-property p19; @(posedge clk) !$rose(data) or enable; endproperty
-assert property(p19);
-
-//===========================================
-// Q20: Pulse width 1 cycle 📏
-property p20; @(posedge clk) $rose(pulse) |=> ##1 !$fell(pulse); endproperty
-assert property(p20);
-
-//===========================================
-// Q21: Req -> Ack -> Done sequence 🛠️
-sequence s21; req ##1 ack ##1 done; endsequence
-property p21; @(posedge clk) s21; endproperty
-assert property(p21);
-
-//===========================================
-// Q22: Data unchanged for 4 cycles 📦
-property p22; @(posedge clk) $stable(data)[*4]; endproperty
-assert property(p22);
-
-//===========================================
-// Q23: Two consecutive rises of A impossible 🚷
-property p23; @(posedge clk) $rose(A) |=> !$rose(A)[*1]; endproperty
-assert property(p23);
-
-//===========================================
-// Q24: A high -> B toggles next cycle 🔃
-property p24; @(posedge clk) A |=> B != $past(B); endproperty
-assert property(p24);
-
-//===========================================
-// Q25: Start -> Ready within 2 cycles ⏱️
-property p25; @(posedge clk) start |=> ##[1:2] ready; endproperty
-assert property(p25);
-
-//===========================================
-// Q26: Valid -> Enable next cycle 📡
-property p26; @(posedge clk) valid |=> ##1 enable; endproperty
-assert property(p26);
-
-//===========================================
-// Q27: A low -> B must be 1 🟢
-property p27; @(posedge clk) !A |-> B; endproperty
-assert property(p27);
-
-//===========================================
-// Q28: B must remain low during reset 🔒
-property p28; @(posedge clk) reset |-> !B; endproperty
-assert property(p28);
-
-//===========================================
-// Q29: A high 2 times -> B must high after 🔁
-sequence s29; A ##1 A; endsequence
-property p29; @(posedge clk) s29 |=> B; endproperty
-assert property(p29);
-
-//===========================================
-// Q30: Rising edge of A -> C stable 🧊
-property p30; @(posedge clk) $rose(A) |=> $stable(C)[*3]; endproperty
-assert property(p30);
-
-//===========================================
-// Q31: B never high for >4 cycles ⛔
-property p31; @(posedge clk) B[*5] |-> 0; endproperty
-assert property(p31);
-
-//===========================================
-// Q32: Count must increment 📈
-property p32; @(posedge clk) !reset |-> count == $past(count)+1; endproperty
-assert property(p32);
-
-//===========================================
-// Q33: A must follow B ⏩
-property p33; @(posedge clk) $rose(B) |=> $rose(A); endproperty
-assert property(p33);
-
-//===========================================
-// Q34: If C rises, D must fall ⤵️
-property p34; @(posedge clk) $rose(C) |=> $fell(D); endproperty
-assert property(p34);
-
-//===========================================
-// Q35: Req -> Ack before 5 cycles 📨
-property p35; @(posedge clk) req |=> ##[1:5] ack; endproperty
-assert property(p35);
-
-//===========================================
-// Q36: Toggle every clock 🔂
-property p36; @(posedge clk) sig != $past(sig); endproperty
-assert property(p36);
-
-//===========================================
-// Q37: D stable until enable 💾
-property p37; @(posedge clk) !enable |-> $stable(D); endproperty
-assert property(p37);
-
-//===========================================
-// Q38: Ready -> Valid before ⏪
-property p38; @(posedge clk) ready |-> valid; endproperty
-assert property(p38);
-
-//===========================================
-// Q39: Pulse width exactly 2 cycles ⌛
-property p39; @(posedge clk) $rose(pulse) |=> pulse[*2] ##1 !$fell(pulse); endproperty
-assert property(p39);
-
-//===========================================
-// Q40: Reset low -> Output unknown ❓
-property p40; @(posedge clk) !reset |-> !$isunknown(out); endproperty
-assert property(p40);
-
-//===========================================
-// Q41: A rise -> B must 1, C must 0 ⚖️
-property p41; @(posedge clk) $rose(A) |=> (B && !C); endproperty
-assert property(p41);
-
-//===========================================
-// Q42: Req & Ack not together 🚫
-property p42; @(posedge clk) !(req && ack); endproperty
-assert property(p42);
-
-//===========================================
-// Q43: Enable -> Count increments 🔢
-property p43; @(posedge clk) enable |=> count==$past(count)+1; endproperty
-assert property(p43);
-
-//===========================================
-// Q44: Valid must last 1 cycle only ⏹️
-property p44; @(posedge clk) $rose(valid) |=> !valid[*2]; endproperty
-assert property(p44);
-
-//===========================================
-// Q45: C must toggle every 2 cycles 🔁
-property p45; @(posedge clk) $rose(C) |=> ##2 $fell(C); endproperty
-assert property(p45);
-
-//===========================================
-// Q46: No glitch on signal 🚫⚡
-property p46; @(posedge clk) !$changed(sig) within 1ns; endproperty
-assert property(p46);
-
-//===========================================
-// Q47: Reset high keeps Q low 🛑
-property p47; @(posedge clk) reset |-> (Q==0); endproperty
-assert property(p47);
-
-//===========================================
-// Q48: Start must eventually Done 🎯
-property p48; @(posedge clk) start |=> ##[1:$] done; endproperty
-assert property(p48);
-
-//===========================================
-// Q49: Toggle exactly once per 4 cycles ⏳
-property p49; @(posedge clk) sig |=> sig[*4]; endproperty
-assert property(p49);
-
-//===========================================
-// Q50: A & B never equal 🚫==
-property p50; @(posedge clk) !(A==B); endproperty
-assert property(p50);
-
-//===========================================
-// Q51: Req -> Ack in 1 cycle 📨
-property p51; @(posedge clk) req |=> ##1 ack; endproperty
-assert property(p51);
-
-//===========================================
-// Q52: Enable holds output constant ⛓️
-property p52; @(posedge clk) enable |-> $stable(out); endproperty
-assert property(p52);
-
-//===========================================
-// Q53: Counter rolls after 15 🔄
-property p53; @(posedge clk) count==15 |=> ##1 count==0; endproperty
-assert property(p53);
-
-//===========================================
-// Q54: Data valid -> parity check 🧮
-property p54; @(posedge clk) valid |-> (^data == parity); endproperty
-assert property(p54);
-
-//===========================================
-// Q55: Handshake req->ack within 2 cycles 🤝
-property p55; @(posedge clk) req |=> ##[1:2] ack; endproperty
-assert property(p55);
-
-//===========================================
-// Q56: FIFO full -> write disabled 📦
-property p56; @(posedge clk) full |-> !write; endproperty
-assert property(p56);
-
-//===========================================
-// Q57: FIFO empty -> read disabled 📭
-property p57; @(posedge clk) empty |-> !read; endproperty
-assert property(p57);
-
-//===========================================
-// Q58: Load -> Count=data_in 📥
-property p58; @(posedge clk) load |=> count==data_in; endproperty
-assert property(p58);
-
-//===========================================
-// Q59: JK flipflop toggle 🔀
-property p59; @(posedge clk) (J && K) |=> Q != $past(Q); endproperty
-assert property(p59);
-
-//===========================================
-// Q60: FSM reset -> state=S0 🔄
-property p60; @(posedge clk) reset |-> state==S0; endproperty
-assert property(p60);
-
-//===========================================
-// Q61: Sequence 101 detect 🔍
-sequence s61; 1 ##1 0 ##1 1; endsequence
-property p61; @(posedge clk) s61 |=> detect; endproperty
-assert property(p61);
-
-//===========================================
-// Q62: A stable until B high 🛑
-property p62; @(posedge clk) $rose(A) |-> (A throughout !B); endproperty
-assert property(p62);
-
-//===========================================
-// Q63: Ack must follow Req 📨
-property p63; @(posedge clk) req |=> ##[1:$] ack; endproperty
-assert property(p63);
-
-//===========================================
-// Q64: Data bus not X ❌
-property p64; @(posedge clk) !$isunknown(data); endproperty
-assert property(p64);
-
-//===========================================
-// Q65: Reset clears all regs 🧹
-property p65; @(posedge clk) reset |-> regs==0; endproperty
-assert property(p65);
-
-//===========================================
-// Q66: Valid stable till ready ⛓️
-property p66; @(posedge clk) valid |-> (valid throughout !ready); endproperty
-assert property(p66);
-
-//===========================================
-// Q67: Done within 10 cycles ⏲️
-property p67; @(posedge clk) start |=> ##[1:10] done; endproperty
-assert property(p67);
-
-//===========================================
-// Q68: Parity error detect ⚠️
-property p68; @(posedge clk) (^data)!=parity |-> error; endproperty
-assert property(p68);
-
-//===========================================
-// Q69: Counter never >MAX ⛔
-property p69; @(posedge clk) count <= MAX; endproperty
-assert property(p69);
-
-//===========================================
-// Q70: Start pulse width 1 cycle 📏
-property p70; @(posedge clk) $rose(start) |=> !start; endproperty
-assert property(p70);
-
-//===========================================
-// Q71: Request must not overlap 🚫
-property p71; @(posedge clk) !(req && $past(req)); endproperty
-assert property(p71);
-
-//===========================================
-// Q72: Reset synchronizes clk 🔔
-property p72; @(posedge clk) reset |-> ##1 !reset; endproperty
-assert property(p72);
-
-//===========================================
-// Q73: Ack low until req high ⏳
-property p73; @(posedge clk) !req |-> !ack; endproperty
-assert property(p73);
-
-//===========================================
-// Q74: A follows B delay 2 cycles ⏩
-property p74; @(posedge clk) $rose(B) |=> ##2 A; endproperty
-assert property(p74);
-
-//===========================================
-// Q75: Load->Q=data ⬇️
-property p75; @(posedge clk) load |=> Q==data; endproperty
-assert property(p75);
-
-//===========================================
-// Q76: Reset->FSM idle 😴
-property p76; @(posedge clk) reset |-> state==IDLE; endproperty
-assert property(p76);
-
-//===========================================
-// Q77: Rising edge of clk toggles q 🔄
-property p77; @(posedge clk) q != $past(q); endproperty
-assert property(p77);
-
-//===========================================
-// Q78: Ack must deassert after req 🚪
-property p78; @(posedge clk) $fell(req) |=> ##[0:1] !ack; endproperty
-assert property(p78);
-
-//===========================================
-// Q79: Counter increments only when enable 📈
-property p79; @(posedge clk) !enable |-> count==$past(count); endproperty
-assert property(p79);
-
-//===========================================
-// Q80: Data valid until ack 📨
-property p80; @(posedge clk) valid |-> (valid throughout !ack); endproperty
-assert property(p80);
-
-//===========================================
-// Q81: Ready in 4-6 cycles 🕓
-property p81; @(posedge clk) valid |=> ##[4:6] ready; endproperty
-assert property(p81);
-
-//===========================================
-// Q82: A high -> B low next 2 cycles ⬇️
-property p82; @(posedge clk) A |=> !B[*2]; endproperty
-assert property(p82);
-
-//===========================================
-// Q83: Req->Ack->Done ✔️
-sequence s83; req ##1 ack ##1 done; endsequence
-property p83; @(posedge clk) s83; endproperty
-assert property(p83);
-
-//===========================================
-// Q84: J=1,K=0 -> Set 🟢
-property p84; @(posedge clk) (J && !K) |=> Q; endproperty
-assert property(p84);
-
-//===========================================
-// Q85: J=0,K=1 -> Reset 🔴
-property p85; @(posedge clk) (!J && K) |=> !Q; endproperty
-assert property(p85);
-
-//===========================================
-// Q86: Counter down mode ⬇️
-property p86; @(posedge clk) down |=> count==$past(count)-1; endproperty
-assert property(p86);
-
-//===========================================
-// Q87: Counter up mode ⬆️
-property p87; @(posedge clk) up |=> count==$past(count)+1; endproperty
-assert property(p87);
-
-//===========================================
-// Q88: A toggles every 3 cycles 🔂
-property p88; @(posedge clk) $rose(A) |=> ##3 $fell(A); endproperty
-assert property(p88);
-
-//===========================================
-// Q89: Req->Ack in 1-3 cycles ⏱️
-property p89; @(posedge clk) req |=> ##[1:3] ack; endproperty
-assert property(p89);
-
-//===========================================
-// Q90: Done stays high 2 cycles ✌️
-property p90; @(posedge clk) $rose(done) |=> done[*2]; endproperty
-assert property(p90);
-
-//===========================================
-// Q91: FSM detect "110" 🔍
-sequence s91; 1 ##1 1 ##1 0; endsequence
-property p91; @(posedge clk) s91 |=> detect; endproperty
-assert property(p91);
-
-//===========================================
-// Q92: Signal never X ❌
-property p92; @(posedge clk) !$isunknown(sig); endproperty
-assert property(p92);
-
-//===========================================
-// Q93: Reset clears counter 0 🧽
-property p93; @(posedge clk) reset |-> count==0; endproperty
-assert property(p93);
-
-//===========================================
-// Q94: Overflow -> Error ⚠️
-property p94; @(posedge clk) overflow |-> error; endproperty
-assert property(p94);
-
-//===========================================
-// Q95: Load sync with clk ⏰
-property p95; @(posedge clk) $rose(load) |-> ##1 data; endproperty
-assert property(p95);
-
-//===========================================
-// Q96: Rising A->falling B ↔️
-property p96; @(posedge clk) $rose(A) |=> $fell(B); endproperty
-assert property(p96);
-
-//===========================================
-// Q97: Enable->Out changes 🌀
-property p97; @(posedge clk) enable |-> $changed(out); endproperty
-assert property(p97);
-
-//===========================================
-// Q98: Out stable until enable 🧊
-property p98; @(posedge clk) !enable |-> $stable(out); endproperty
-assert property(p98);
-
-//===========================================
-// Q99: Handshake valid->ready->done 🤝
-sequence s99; valid ##1 ready ##1 done; endsequence
-property p99; @(posedge clk) s99; endproperty
-assert property(p99);
-
-//===========================================
-// Q100: Clock toggles each half cycle ⏳
-property p100; @(posedge clk) clk != $past(clk); endproperty
-assert
-
-
-
-
-//===========================================
-// Q1: A high -> B next cycle 🚀
-property p1; @(posedge clk) A |=> B; endproperty
-assert property(p1);
-
-//===========================================
-// Q2: B stable for 3 cycles 🛑
-property p2; @(posedge clk) $stable(B)[*3]; endproperty
-assert property(p2);
-
-//===========================================
-// Q3: A rise -> C falls in 2 cycles ⏱️
-property p3; @(posedge clk) $rose(A) |=> ##2 $fell(C); endproperty
-assert property(p3);
-
-//===========================================
-// Q4: A & B never high together ❌
-property p4; @(posedge clk) !(A && B); endproperty
-assert property(p4);
-
-//===========================================
-// Q5: D toggles every 2 cycles 🔁
-property p5; @(posedge clk) $changed(D)[*2]; endproperty
-assert property(p5);
-
-//===========================================
-// Q6: Reset low -> Q=0 📴
-property p6; @(posedge clk) !reset |-> (Q==0); endproperty
-assert property(p6);
-
-//===========================================
-// Q7: Enable -> Data stable 📊
-property p7; @(posedge clk) enable |-> $stable(data); endproperty
-assert property(p7);
-
-//===========================================
-// Q8: Req -> Ack in 1-3 cycles 📩
-property p8; @(posedge clk) req |=> ##[1:3] ack; endproperty
-assert property(p8);
-
-//===========================================
-// Q9: Start -> Done within 5 cycles ✅
-property p9; @(posedge clk) start |=> ##[1:5] done; endproperty
-assert property(p9);
-
-//===========================================
-// Q10: Valid stays until Ready 🙌
-property p10; @(posedge clk) valid |-> valid until_with ready; endproperty
-assert property(p10);
-
-//===========================================
-// Q11: No back-to-back reset 🚷
-property p11; @(posedge clk) $rose(reset) |-> !reset[->1]; endproperty
-assert property(p11);
-
-//===========================================
-// Q12: Pulse width = 2 cycles ⌛
-property p12; @(posedge clk) $rose(pulse) |=> pulse[*2]; endproperty
-assert property(p12);
-
-//===========================================
-// Q13: Req -> Ack -> Deassert Req 📤
-property p13; @(posedge clk) req |=> ack ##1 !req; endproperty
-assert property(p13);
-
-//===========================================
-// Q14: Counter increments 📈
-property p14; @(posedge clk) $rose(en) |=> (count == $past(count)+1); endproperty
-assert property(p14);
-
-//===========================================
-// Q15: Counter resets 🆑
-property p15; @(posedge clk) $rose(rst) |=> (count==0); endproperty
-assert property(p15);
-
-//===========================================
-// Q16: A followed by B 2 cycles later 🔂
-property p16; @(posedge clk) A |=> ##2 B; endproperty
-assert property(p16);
-
-//===========================================
-// Q17: X must toggle every clock ⏳
-property p17; @(posedge clk) X != $past(X); endproperty
-assert property(p17);
-
-//===========================================
-// Q18: Signal stable until ack 🔒
-property p18; @(posedge clk) req |-> $stable(sig) until ack; endproperty
-assert property(p18);
-
-//===========================================
-// Q19: Rising edge of clk_en -> q toggles 🔀
-property p19; @(posedge clk) $rose(clk_en) |=> q != $past(q); endproperty
-assert property(p19);
-
-//===========================================
-// Q20: Load -> Q=Data 🎯
-property p20; @(posedge clk) load |=> (Q==D); endproperty
-assert property(p20);
-
-//===========================================
-// Q21: A high -> B & C low 🔇
-property p21; @(posedge clk) A |-> !(B||C); endproperty
-assert property(p21);
-
-//===========================================
-// Q22: A then not A for 3 cycles 🧩
-property p22; @(posedge clk) A |=> !A[*3]; endproperty
-assert property(p22);
-
-//===========================================
-// Q23: Valid high -> Ack within 2 cycles 🎬
-property p23; @(posedge clk) valid |=> ##[1:2] ack; endproperty
-assert property(p23);
-
-//===========================================
-// Q24: Clock divide by 2 ⏲️
-property p24; @(posedge clk) div2 != $past(div2); endproperty
-assert property(p24);
-
-//===========================================
-// Q25: Start -> Busy stays 4 cycles 🔄
-property p25; @(posedge clk) start |=> busy[*4]; endproperty
-assert property(p25);
-
-//===========================================
-// Q26: J=K=1 -> Toggle JK flipflop 🔃
-property p26; @(posedge clk) (J && K) |=> Q != $past(Q); endproperty
-assert property(p26);
-
-//===========================================
-// Q27: J=1,K=0 -> Set Q 🟢
-property p27; @(posedge clk) (J && !K) |=> Q; endproperty
-assert property(p27);
-
-//===========================================
-// Q28: J=0,K=1 -> Reset Q 🔴
-property p28; @(posedge clk) (!J && K) |=> !Q; endproperty
-assert property(p28);
-
-//===========================================
-// Q29: No illegal state in FSM 🚫
-property p29; @(posedge clk) !(state==3'b111); endproperty
-assert property(p29);
-
-//===========================================
-// Q30: FSM reset to S0 🔁
-property p30; @(posedge clk) reset |=> (state==S0); endproperty
-assert property(p30);
-
-//===========================================
-// Q31: Data valid -> latch stable 💾
-property p31; @(posedge clk) d_valid |-> $stable(latch); endproperty
-assert property(p31);
-
-//===========================================
-// Q32: A stays high for 2-4 cycles ⌛
-property p32; @(posedge clk) $rose(A) |=> A[*2:4]; endproperty
-assert property(p32);
-
-//===========================================
-// Q33: Pulse single-cycle only 🔂
-property p33; @(posedge clk) $rose(pulse) |=> !pulse; endproperty
-assert property(p33);
-
-//===========================================
-// Q34: B rise -> A already high ⬆️
-property p34; @(posedge clk) $rose(B) |-> A; endproperty
-assert property(p34);
-
-//===========================================
-// Q35: Valid cannot fall before ack 🧷
-property p35; @(posedge clk) valid |-> valid until ack; endproperty
-assert property(p35);
-
-//===========================================
-// Q36: Counter wraps mod-8 🔁
-property p36; @(posedge clk) (count==7) |=> (count==0); endproperty
-assert property(p36);
-
-//===========================================
-// Q37: No X & Y high together 🚷
-property p37; @(posedge clk) !(X && Y); endproperty
-assert property(p37);
-
-//===========================================
-// Q38: Enable -> Out stable 🔏
-property p38; @(posedge clk) enable |-> $stable(out); endproperty
-assert property(p38);
-
-//===========================================
-// Q39: No glitch on clk_en ⚡
-property p39; @(posedge clk) $stable(clk_en); endproperty
-assert property(p39);
-
-//===========================================
-// Q40: Data changes only with load 🛎️
-property p40; @(posedge clk) !$rose(load) |-> $stable(data); endproperty
-assert property(p40);
-
-//===========================================
-// Q41: Serial start bit always 0 🥏
-property p41; @(posedge clk) $rose(tx_start) |-> (tx_line==0); endproperty
-assert property(p41);
-
-//===========================================
-// Q42: Stop bit always 1 🛑
-property p42; @(posedge clk) tx_stop |-> tx_line==1; endproperty
-assert property(p42);
-
-//===========================================
-// Q43: A toggles every 3 cycles 🔂
-property p43; @(posedge clk) $rose(A) |=> ##3 $fell(A); endproperty
-assert property(p43);
-
-//===========================================
-// Q44: Req implies Gnt in <=4 cycles 📌
-property p44; @(posedge clk) req |=> ##[1:4] gnt; endproperty
-assert property(p44);
-
-//===========================================
-// Q45: FIFO full -> No write 🛑
-property p45; @(posedge clk) full |-> !write; endproperty
-assert property(p45);
-
-//===========================================
-// Q46: FIFO empty -> No read 📥
-property p46; @(posedge clk) empty |-> !read; endproperty
-assert property(p46);
-
-//===========================================
-// Q47: Power on reset clears Q 📴
-property p47; @(posedge clk) por |=> (Q==0); endproperty
-assert property(p47);
-
-//===========================================
-// Q48: Data ready -> Ack within 3 ⏲️
-property p48; @(posedge clk) data_rdy |=> ##[1:3] ack; endproperty
-assert property(p48);
-
-//===========================================
-// Q49: Clock duty cycle check 50% ⚖️
-property p49; @(posedge clk) clk |=> ##1 !clk; endproperty
-assert property(p49);
-
-//===========================================
-// Q50: Enable must not glitch 🚦
-property p50; @(posedge clk) $rose(enable) |-> enable[*1:$]; endproperty
-assert property(p50);
-
-//===========================================
-// Q51: Reset -> Count zero 🎯
-property p51; @(posedge clk) reset |=> (cnt==0); endproperty
-assert property(p51);
-
-//===========================================
-// Q52: Toggle every 4 cycles 🔄
-property p52; @(posedge clk) $changed(sig)[*4]; endproperty
-assert property(p52);
-
-//===========================================
-// Q53: Handshake valid -> ready 👐
-property p53; @(posedge clk) valid |-> ready within [1:3]; endproperty
-assert property(p53);
-
-//===========================================
-// Q54: Address aligned 🧾
-property p54; @(posedge clk) (addr%4==0); endproperty
-assert property(p54);
-
-//===========================================
-// Q55: Data stable during write ✍️
-property p55; @(posedge clk) write |-> $stable(data); endproperty
-assert property(p55);
-
-//===========================================
-// Q56: No two enables overlap 🚫
-property p56; @(posedge clk) !(en1 && en2); endproperty
-assert property(p56);
-
-//===========================================
-// Q57: Rising edge of trigger -> done in 2 ⏲️
-property p57; @(posedge clk) $rose(trig) |=> ##2 done; endproperty
-assert property(p57);
-
-//===========================================
-// Q58: B low until reset deassert ⛔
-property p58; @(posedge clk) reset |-> !B until !reset; endproperty
-assert property(p58);
-
-//===========================================
-// Q59: Output stable 5 cycles 📡
-property p59; @(posedge clk) $stable(out)[*5]; endproperty
-assert property(p59);
-
-//===========================================
-// Q60: Ack before req falls 📝
-property p60; @(posedge clk) req |-> req until ack; endproperty
-assert property(p60);
-
-//===========================================
-// Q61: State machine never S5 🚷
-property p61; @(posedge clk) !(state==S5); endproperty
-assert property(p61);
-
-//===========================================
-// Q62: Signal must init low 📴
-property p62; @(posedge clk) $rose(rst_n) |-> !sig; endproperty
-assert property(p62);
-
-//===========================================
-// Q63: J&K both 0 -> Q holds 🧊
-property p63; @(posedge clk) (!J && !K) |=> Q==$past(Q); endproperty
-assert property(p63);
-
-//===========================================
-// Q64: A pulse width <=2 ⏱️
-property p64; @(posedge clk) $rose(A) |=> A[*1:2] ##1 !A; endproperty
-assert property(p64);
-
-//===========================================
-// Q65: No X rising before reset end ❌
-property p65; @(posedge clk) reset |-> !X; endproperty
-assert property(p65);
-
-//===========================================
-// Q66: Interrupt -> ISR within 5 🖥️
-property p66; @(posedge clk) irq |=> ##[1:5] isr; endproperty
-assert property(p66);
-
-//===========================================
-// Q67: Lock once high stays high 🔒
-property p67; @(posedge clk) $rose(lock) |=> lock[*1:$]; endproperty
-assert property(p67);
-
-//===========================================
-// Q68: Req burst -> Ack after burst 📦
-property p68; @(posedge clk) $rose(req) |-> ack within [1:8]; endproperty
-assert property(p68);
-
-//===========================================
-// Q69: Bus arbiter 1-hot 🔥
-property p69; @(posedge clk) $onehot(grant); endproperty
-assert property(p69);
-
-//===========================================
-// Q70: Grant -> Req active 🛠️
-property p70; @(posedge clk) grant |-> req; endproperty
-assert property(p70);
-
-//===========================================
-// Q71: Valid cannot drop early 🧩
-property p71; @(posedge clk) valid |-> valid until ack; endproperty
-assert property(p71);
-
-//===========================================
-// Q72: Reset synchronizer 2 cycles 🔂
-property p72; @(posedge clk) $rose(reset) |=> reset[*2]; endproperty
-assert property(p72);
-
-//===========================================
-// Q73: Start -> Stop within 10 cycles 🏁
-property p73; @(posedge clk) start |=> ##[1:10] stop; endproperty
-assert property(p73);
-
-//===========================================
-// Q74: Data toggle every enable 🔄
-property p74; @(posedge clk) $rose(en) |=> data != $past(data); endproperty
-assert property(p74);
-
-//===========================================
-// Q75: Config valid -> Load next cycle ⚙️
-property p75; @(posedge clk) cfg_valid |=> load; endproperty
-assert property(p75);
-
-//===========================================
-// Q76: Ack -> Req deassert 📭
-property p76; @(posedge clk) ack |=> !req; endproperty
-assert property(p76);
-
-//===========================================
-// Q77: FIFO never overflow 🚫
-property p77; @(posedge clk) (count<=DEPTH); endproperty
-assert property(p77);
-
-//===========================================
-// Q78: FIFO never underflow 🚫
-property p78; @(posedge clk) (count>=0); endproperty
-assert property(p78);
-
-//===========================================
-// Q79: Address increments by 4 ➕
-property p79; @(posedge clk) incr |=> addr==$past(addr)+4; endproperty
-assert property(p79);
-
-//===========================================
-// Q80: Timeout after 8 cycles ⏰
-property p80; @(posedge clk) start |=> ##8 timeout; endproperty
-assert property(p80);
-
-//===========================================
-// Q81: Signal never X/Z ❎
-property p81; @(posedge clk) !$isunknown(sig); endproperty
-assert property(p81);
-
-//===========================================
-// Q82: Onehot0 grant acceptable 🔥
-property p82; @(posedge clk) $onehot0(grant); endproperty
-assert property(p82);
-
-//===========================================
-// Q83: Req high -> Resp low until done 🔄
-property p83; @(posedge clk) req |-> !resp until done; endproperty
-assert property(p83);
-
-//===========================================
-// Q84: Out stable during busy 🧊
-property p84; @(posedge clk) busy |-> $stable(out); endproperty
-assert property(p84);
-
-//===========================================
-// Q85: Enable toggles clk_out ⏳
-property p85; @(posedge clk) $rose(enable) |=> clk_out != $past(clk_out); endproperty
-assert property(p85);
-
-//===========================================
-// Q86: A must follow B in 1-2 cycles 🔂
-property p86; @(posedge clk) B |=> ##[1:2] A; endproperty
-assert property(p86);
-
-//===========================================
-// Q87: Valid->Done before reset 🔧
-property p87; @(posedge clk) valid |-> done until reset; endproperty
-assert property(p87);
-
-//===========================================
-// Q88: Stable flag during op 🏗️
-property p88; @(posedge clk) op |-> $stable(flag); endproperty
-assert property(p88);
-
-//===========================================
-// Q89: Data must not change if hold 🛑
-property p89; @(posedge clk) hold |-> $stable(data); endproperty
-assert property(p89);
-
-//===========================================
-// Q90: Done pulse single-cycle 🕐
-property p90; @(posedge clk) $rose(done) |=> !done; endproperty
-assert property(p90);
-
-//===========================================
-// Q91: Write must assert valid 🖊️
-property p91; @(posedge clk) write |-> valid; endproperty
-assert property(p91);
-
-//===========================================
-// Q92: Ack within 6 cycles 🕓
-property p92; @(posedge clk) req |=> ##[1:6] ack; endproperty
-assert property(p92);
-
-//===========================================
-// Q93: A rise -> B stable 2 cycles 🔄
-property p93; @(posedge clk) $rose(A) |=> $stable(B)[*2]; endproperty
-assert property(p93);
-
-//===========================================
-// Q94: Handshake: Valid until Ready 🤝
-property p94; @(posedge clk) valid |-> valid until_with ready; endproperty
-assert property(p94);
-
-//===========================================
-// Q95: Config stable till apply ⚙️
-property p95; @(posedge clk) cfg |-> $stable(cfg_data) until apply; endproperty
-assert property(p95);
-
-//===========================================
-// Q96: Error never overlaps Done 🚫
-property p96; @(posedge clk) !(error && done); endproperty
-assert property(p96);
-
-//===========================================
-// Q97: Start -> Finish within 12 ⏱️
-property p97; @(posedge clk) start |=> ##[1:12] finish; endproperty
-assert property(p97);
-
-//===========================================
-// Q98: Busy high until Done ⬆️
-property p98; @(posedge clk) $rose(busy) |=> busy until done; endproperty
-assert property(p98);
-
-//===========================================
-// Q99: Grant follows Request in 2-3 cycles ⏲️
-property p99; @(posedge clk) req |=> ##[2:3] grant; endproperty
-assert property(p99);
-
-//===========================================
-// Q100: A rise -> B fall within 4 cycles 📉
-property p100; @(posedge clk) $rose(A) |=> ##[1:4] $fell(B); endproperty
-assert property(p100);
+//-------------------------------------------------------------
+// Q1: Basic immediate assertion pass
+//-------------------------------------------------------------
+/*
+module q1;
+  int a=5;
+  initial begin
+    assert(a==5) 
+    $display("Q1 -> PASS");
+    else
+    $display("Q1 -> FAIL");
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q2: Immediate assertion fail
+//-------------------------------------------------------------
+/*
+module q2;
+  int a=3;
+  initial begin
+    assert(a==5) 
+    $display("Q2 -> PASS"); 
+    else 
+    $display("Q2 -> FAIL");
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q3: Concurrent assertion pass
+//-------------------------------------------------------------
+/*
+module q3;
+  logic clk,a,b;
+  property p1;
+  @(posedge clk) a |-> b; 
+  endproperty
+  
+  assert property(p1) 
+  $display("Q3 -> PASS"); 
+  else
+  $display("Q3 -> FAIL");
+  
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q4: Concurrent assertion fail
+//-------------------------------------------------------------
+/*
+module q4;
+  logic clk,a,b;
+  property p1;
+  @(posedge clk) a |-> b;
+  endproperty
+  
+  assert property(p1)
+  $display("Q4 -> PASS");
+  else 
+  $display("Q4 -> FAIL");
+  
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;b=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q5: disable iff usage
+//-------------------------------------------------------------
+/*
+module q5;
+  logic clk,rst,a,b;
+  property p1;
+  @(posedge clk) disable iff(rst) a |-> b; 
+  endproperty
+  
+  assert property(p1) $display("Q5 -> PASS");
+  else
+  $display("Q5 -> FAIL");
+  
+  initial begin
+    clk=0; rst=1; a=1; b=0;
+    #5 rst=0; a=1; b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q6: Implication ##1 delay pass
+//-------------------------------------------------------------
+/*
+module q6;
+  logic clk,a,b;
+  property p1;
+  @(posedge clk) a |=> ##1 b; 
+  endproperty
+  
+  assert property(p1) 
+  $display("Q6 -> PASS");
+  else 
+  $display("Q6 -> FAIL");
+  
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1; #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q7: Implication ##1 fail
+//-------------------------------------------------------------
+/*
+module q7;
+  logic clk,a,b;
+  property p1;
+  @(posedge clk) a |=> ##1 b; 
+  endproperty
+  assert property(p1) $display("Q7 -> PASS"); 
+  else
+  $display("Q7 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1; #15 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q8: Sequence with consecutive 1's
+//-------------------------------------------------------------
+/*
+module q8;
+  logic clk, a;
+  property p1;
+  @(posedge clk) a[*2]; 
+  endproperty
+  assert property(p1) $display("Q8 -> PASS"); 
+  else 
+  $display("Q8 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1; #10 a=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q9: Overlapping implication
+//-------------------------------------------------------------
+/*
+module q9;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##[1:2] b; endproperty
+  assert property(p1) $display("Q9 -> PASS"); else $display("Q9 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1; #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q10: Sequence non-overlapping
+//-------------------------------------------------------------
+/*
+module q10;
+  logic clk,a,b;
+  property p1; @(posedge clk) a ##1 b; endproperty
+  assert property(p1) $display("Q10 -> PASS"); else $display("Q10 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1; #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q11: Within operator usage
+//-------------------------------------------------------------
+/*
+module q11;
+  logic clk,a,b;
+  
+  property p1;
+    @(posedge clk) a |-> (b within [1:3]); 
+  endproperty
+  
+  assert property(p1) $display("Q11 -> PASS");
+    else
+      $display("Q11 -> FAIL");
+    
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1; #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q12: Abort sequence using disable iff
+//-------------------------------------------------------------
+/*
+module q12;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) (a ##1 b); endproperty
+  assert property(p1) $display("Q12 -> PASS"); else $display("Q12 -> FAIL");
+  initial begin
+    clk=0; rst=1; a=1; b=1;
+    #5 rst=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q13: Assertion on always true condition
+//-------------------------------------------------------------
+/*
+module q13;
+  logic clk;
+  property p1; @(posedge clk) 1; endproperty
+  assert property(p1) $display("Q13 -> PASS"); else $display("Q13 -> FAIL");
+  initial begin clk=0; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q14: Assertion on always false condition
+//-------------------------------------------------------------
+/*
+module q14;
+  logic clk;
+  property p1; @(posedge clk) 0; endproperty
+  assert property(p1) $display("Q14 -> PASS"); else $display("Q14 -> FAIL");
+  initial begin clk=0; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q15: Implication chain pass
+//-------------------------------------------------------------
+/*
+module q15;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) (a |-> b |-> c); endproperty
+  assert property(p1) $display("Q15 -> PASS"); else $display("Q15 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;c=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q16: Implication chain fail
+//-------------------------------------------------------------
+/*
+module q16;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) (a |-> b |-> c); endproperty
+  assert property(p1) $display("Q16 -> PASS"); else $display("Q16 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;c=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q17: Assertion inside always block
+//-------------------------------------------------------------
+/*
+module q17;
+  logic clk,a;
+  initial clk=0;
+  always #5 clk=~clk;
+  always @(posedge clk)
+    assert(a==1) $display("Q17 -> PASS"); else $display("Q17 -> FAIL");
+  initial begin a=0; #15 a=1; #30 $finish; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q18: Sequence with repetition
+//-------------------------------------------------------------
+/*
+module q18;
+  logic clk,a;
+  property p1; @(posedge clk) a[*3]; endproperty
+  assert property(p1) $display("Q18 -> PASS"); else $display("Q18 -> FAIL");
+  initial begin clk=0;a=1; repeat(6) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q19: Event trigger property
+//-------------------------------------------------------------
+/*
+module q19;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q19 -> PASS"); else $display("Q19 -> FAIL");
+  initial begin clk=0;a=1;b=1; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q20: Simple sequence pass
+//-------------------------------------------------------------
+/*
+module q20;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a ##1 b); endproperty
+  assert property(p1) $display("Q20 -> PASS"); else $display("Q20 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q21: Simple sequence fail
+//-------------------------------------------------------------
+/*
+module q21;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a ##1 b); endproperty
+  assert property(p1) $display("Q21 -> PASS"); else $display("Q21 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #30 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q22: Immediate assertion in always block
+//-------------------------------------------------------------
+/*
+module q22;
+  logic clk,a;
+  initial clk=0;
+  always #5 clk=~clk;
+  always @(posedge clk)
+    assert(a) $display("Q22 -> PASS"); else $display("Q22 -> FAIL");
+  initial begin a=0; #15 a=1; #30 $finish; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q23: Assertion using sequence range
+//-------------------------------------------------------------
+/*
+module q23;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##[1:3] b; endproperty
+  assert property(p1) $display("Q23 -> PASS"); else $display("Q23 -> FAIL");
+  initial begin clk=0;a=1;b=0; #10 b=1; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q24: Assertion property with disable condition
+//-------------------------------------------------------------
+/*
+module q24;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) a |-> b; endproperty
+  assert property(p1) $display("Q24 -> PASS"); else $display("Q24 -> FAIL");
+  initial begin clk=0; rst=1; a=1;b=0; #5 rst=0;b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q25: Consecutive repetition range
+//-------------------------------------------------------------
+/*
+module q25;
+  logic clk,a;
+  property p1; @(posedge clk) a[*1:3]; endproperty
+  assert property(p1) $display("Q25 -> PASS"); else $display("Q25 -> FAIL");
+  initial begin clk=0;a=1; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q26: Assertion for rising edge
+//-------------------------------------------------------------
+/*
+module q26;
+  logic clk,sig;
+  property p1; @(posedge clk) $rose(sig); endproperty
+  assert property(p1) $display("Q26 -> PASS"); else $display("Q26 -> FAIL");
+  initial begin clk=0; sig=0; #10 sig=1; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q27: Assertion for falling edge
+//-------------------------------------------------------------
+/*
+module q27;
+  logic clk,sig;
+  property p1; @(posedge clk) $fell(sig); endproperty
+  assert property(p1) $display("Q27 -> PASS"); else $display("Q27 -> FAIL");
+  initial begin clk=0; sig=1; #10 sig=0; repeat(5) #5 clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q28: Stable signal assertion
+//-------------------------------------------------------------
+/*
+module q28;
+  logic clk,a;
+  property p1; @(posedge clk) $stable(a); endproperty
+  assert property(p1) $display("Q28 -> PASS"); else $display("Q28 -> FAIL");
+  initial begin clk=0;a=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q29: Change signal assertion
+//-------------------------------------------------------------
+/*
+module q29;
+  logic clk,a;
+  property p1; @(posedge clk) !$stable(a); endproperty
+  assert property(p1) $display("Q29 -> PASS"); else $display("Q29 -> FAIL");
+  initial begin clk=0;a=0; #10 a=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q30: Always true property
+//-------------------------------------------------------------
+/*
+module q30;
+  logic clk;
+  property p1; @(posedge clk) 1; endproperty
+  assert property(p1) $display("Q30 -> PASS"); else $display("Q30 -> FAIL");
+  initial begin clk=0; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q31: Always false property
+//-------------------------------------------------------------
+/*
+module q31;
+  logic clk;
+  property p1; @(posedge clk) 0; endproperty
+  assert property(p1) $display("Q31 -> PASS"); else $display("Q31 -> FAIL");
+  initial begin clk=0; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q32: Assertion with logical and
+//-------------------------------------------------------------
+/*
+module q32;
+  logic clk,a,b;
+  property p1; @(posedge clk) a && b; endproperty
+  assert property(p1) $display("Q32 -> PASS"); else $display("Q32 -> FAIL");
+  initial begin clk=0;a=1;b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q33: Assertion with logical or
+//-------------------------------------------------------------
+/*
+module q33;
+  logic clk,a,b;
+  property p1; @(posedge clk) a || b; endproperty
+  assert property(p1) $display("Q33 -> PASS"); else $display("Q33 -> FAIL");
+  initial begin clk=0;a=0;b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q34: Assertion using not
+//-------------------------------------------------------------
+/*
+module q34;
+  logic clk,a;
+  property p1; @(posedge clk) !a; endproperty
+  assert property(p1) $display("Q34 -> PASS"); else $display("Q34 -> FAIL");
+  initial begin clk=0;a=0; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q35: Property true after few cycles
+//-------------------------------------------------------------
+/*
+module q35;
+  logic clk,a;
+  property p1; @(posedge clk) ##2 a; endproperty
+  assert property(p1) $display("Q35 -> PASS"); else $display("Q35 -> FAIL");
+  initial begin clk=0;a=0; #15 a=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q36: Property fail if delay missed
+//-------------------------------------------------------------
+/*
+module q36;
+  logic clk,a;
+  property p1; @(posedge clk) ##1 a; endproperty
+  assert property(p1) $display("Q36 -> PASS"); else $display("Q36 -> FAIL");
+  initial begin clk=0;a=0; #15 a=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q37: Property with implication and delay
+//-------------------------------------------------------------
+/*
+module q37;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> ##2 b; endproperty
+  assert property(p1) $display("Q37 -> PASS"); else $display("Q37 -> FAIL");
+  initial begin clk=0;a=1; #10 b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q38: Assertion using throughout
+//-------------------------------------------------------------
+/*
+module q38;
+  logic clk,a,b;
+  property p1; @(posedge clk) a throughout b; endproperty
+  assert property(p1) $display("Q38 -> PASS"); else $display("Q38 -> FAIL");
+  initial begin clk=0;a=1;b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q39: Assertion with until
+//-------------------------------------------------------------
+/*
+module q39;
+  logic clk,a,b;
+  property p1; @(posedge clk) a until b; endproperty
+  assert property(p1) $display("Q39 -> PASS"); else $display("Q39 -> FAIL");
+  initial begin clk=0;a=1;b=0; #15 b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q40: Assertion with until_with
+//-------------------------------------------------------------
+/*
+module q40;
+  logic clk,a,b;
+  property p1; @(posedge clk) a until_with b; endproperty
+  assert property(p1) $display("Q40 -> PASS"); else $display("Q40 -> FAIL");
+  initial begin clk=0;a=1;b=0; #10 b=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q41: Assertion on bit toggle
+//-------------------------------------------------------------
+/*
+module q41;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q41 -> PASS"); else $display("Q41 -> FAIL");
+  initial begin clk=0;a=0; #10 a=1; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q42: Assertion false scenario
+//-------------------------------------------------------------
+/*
+module q42;
+  logic clk,a;
+  property p1; @(posedge clk) a; endproperty
+  assert property(p1) $display("Q42 -> PASS"); else $display("Q42 -> FAIL");
+  initial begin clk=0;a=0; repeat(5)#5clk=~clk; end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q43: Simple immediate assertion pass
+//-------------------------------------------------------------
+/*
+module q43;
+  int a=5;
+  initial begin
+    assert(a==5) $display("Q43 -> PASS"); else $display("Q43 -> FAIL");
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q44: Simple immediate assertion fail
+//-------------------------------------------------------------
+/*
+module q44;
+  int a=3;
+  initial begin
+    assert(a==5) $display("Q44 -> PASS"); else $display("Q44 -> FAIL");
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q45: Concurrent assertion simple property pass
+//-------------------------------------------------------------
+/*
+module q45;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b; endproperty
+  assert property(p1) $display("Q45 -> PASS"); else $display("Q45 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q46: Concurrent assertion fail
+//-------------------------------------------------------------
+/*
+module q46;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b; endproperty
+  assert property(p1) $display("Q46 -> PASS"); else $display("Q46 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;b=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q47: Assertion with disable iff reset
+//-------------------------------------------------------------
+/*
+module q47;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) a |-> b; endproperty
+  assert property(p1) $display("Q47 -> PASS"); else $display("Q47 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=1;b=0;
+    #5 rst=0;a=1;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q48: Assertion using implication ##1 pass
+//-------------------------------------------------------------
+/*
+module q48;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> ##1 b; endproperty
+  assert property(p1) $display("Q48 -> PASS"); else $display("Q48 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;
+    #10 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q49: Assertion using implication ##1 fail
+//-------------------------------------------------------------
+/*
+module q49;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> ##1 b; endproperty
+  assert property(p1) $display("Q49 -> PASS"); else $display("Q49 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;
+    #20 b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q50: Assertion using sequence with repetition
+//-------------------------------------------------------------
+/*
+module q50;
+  logic clk,a,b;
+  sequence s1; a ##1 a ##1 b; endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q50 -> PASS"); else $display("Q50 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;
+    #10 a=1;
+    #15 b=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q51: Assertion checking signal high for 3 cycles
+//-------------------------------------------------------------
+/*
+module q51;
+  logic clk,sig;
+  property p1; @(posedge clk) sig[*3]; endproperty
+  assert property(p1) $display("Q51 -> PASS"); else $display("Q51 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q52: Assertion checking signal low for 2 cycles fail
+//-------------------------------------------------------------
+/*
+module q52;
+  logic clk,sig;
+  property p1; @(posedge clk) !sig[*2]; endproperty
+  assert property(p1) $display("Q52 -> PASS"); else $display("Q52 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    #5 sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q53: Assertion for signal toggling
+//-------------------------------------------------------------
+/*
+module q53;
+  logic clk,sig;
+  property p1; @(posedge clk) sig |-> !sig; endproperty
+  assert property(p1) $display("Q53 -> PASS"); else $display("Q53 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    #5 sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q54: Assertion for signal stable for 2 cycles
+//-------------------------------------------------------------
+/*
+module q54;
+  logic clk,sig;
+  property p1; @(posedge clk) $stable(sig)[*2]; endproperty
+  assert property(p1) $display("Q54 -> PASS"); else $display("Q54 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q55: Assertion with overlapped implication
+//-------------------------------------------------------------
+/*
+module q55;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b; endproperty
+  assert property(p1) $display("Q55 -> PASS"); else $display("Q55 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q56: Assertion with non-overlapped implication fail
+//-------------------------------------------------------------
+/*
+module q56;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q56 -> PASS"); else $display("Q56 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q57: Assertion check after delay ##2
+//-------------------------------------------------------------
+/*
+module q57;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> ##2 b; endproperty
+  assert property(p1) $display("Q57 -> PASS"); else $display("Q57 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #10 a=1;
+    #20 b=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q58: Assertion checking rising edge
+//-------------------------------------------------------------
+/*
+module q58;
+  logic clk,sig;
+  property p1; @(posedge clk) $rose(sig); endproperty
+  assert property(p1) $display("Q58 -> PASS"); else $display("Q58 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    #10 sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q59: Assertion checking falling edge fail
+//-------------------------------------------------------------
+/*
+module q59;
+  logic clk,sig;
+  property p1; @(posedge clk) $fell(sig); endproperty
+  assert property(p1) $display("Q59 -> PASS"); else $display("Q59 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    #10 sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q60: Assertion checking value inside range
+//-------------------------------------------------------------
+/*
+module q60;
+  logic clk;
+  int data=10;
+  property p1; @(posedge clk) data inside {[5:15]}; endproperty
+  assert property(p1) $display("Q60 -> PASS"); else $display("Q60 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q61: Check signal high within 2 cycles after trigger
+//-------------------------------------------------------------
+/*
+module q61;
+  logic clk,trig,sig;
+  property p1; @(posedge clk) trig |-> ##[1:2] sig; endproperty
+  assert property(p1) $display("Q61 -> PASS"); else $display("Q61 -> FAIL");
+  initial begin
+    clk=0;trig=0;sig=0;
+    #5 trig=1; #10 sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q62: Fail when signal doesn’t go high in time window
+//-------------------------------------------------------------
+/*
+module q62;
+  logic clk,trig,sig;
+  property p1; @(posedge clk) trig |-> ##[1:2] sig; endproperty
+  assert property(p1) $display("Q62 -> PASS"); else $display("Q62 -> FAIL");
+  initial begin
+    clk=0;trig=1;sig=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q63: Check output valid after enable
+//-------------------------------------------------------------
+/*
+module q63;
+  logic clk,en,valid;
+  property p1; @(posedge clk) en |=> ##1 valid; endproperty
+  assert property(p1) $display("Q63 -> PASS"); else $display("Q63 -> FAIL");
+  initial begin
+    clk=0;en=0;valid=0;
+    #5 en=1; #10 valid=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q64: Fail output not valid after enable
+//-------------------------------------------------------------
+/*
+module q64;
+  logic clk,en,valid;
+  property p1; @(posedge clk) en |=> ##1 valid; endproperty
+  assert property(p1) $display("Q64 -> PASS"); else $display("Q64 -> FAIL");
+  initial begin
+    clk=0;en=1;valid=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q65: Check request must be followed by grant
+//-------------------------------------------------------------
+/*
+module q65;
+  logic clk,req,gnt;
+  property p1; @(posedge clk) req |-> ##1 gnt; endproperty
+  assert property(p1) $display("Q65 -> PASS"); else $display("Q65 -> FAIL");
+  initial begin
+    clk=0;req=1;gnt=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q66: Request without grant fails
+//-------------------------------------------------------------
+/*
+module q66;
+  logic clk,req,gnt;
+  property p1; @(posedge clk) req |-> ##1 gnt; endproperty
+  assert property(p1) $display("Q66 -> PASS"); else $display("Q66 -> FAIL");
+  initial begin
+    clk=0;req=1;gnt=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q67: Signal should not toggle within 2 cycles
+//-------------------------------------------------------------
+/*
+module q67;
+  logic clk,sig;
+  property p1; @(posedge clk) !$changed(sig)[*2]; endproperty
+  assert property(p1) $display("Q67 -> PASS"); else $display("Q67 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q68: Fail signal changes early
+//-------------------------------------------------------------
+/*
+module q68;
+  logic clk,sig;
+  property p1; @(posedge clk) !$changed(sig)[*3]; endproperty
+  assert property(p1) $display("Q68 -> PASS"); else $display("Q68 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    #5 sig=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q69: Check reset clears data
+//-------------------------------------------------------------
+/*
+module q69;
+  logic clk,rst; int data;
+  property p1; @(posedge clk) rst |-> data==0; endproperty
+  assert property(p1) $display("Q69 -> PASS"); else $display("Q69 -> FAIL");
+  initial begin
+    clk=0;rst=1;data=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q70: Fail reset didn’t clear data
+//-------------------------------------------------------------
+/*
+module q70;
+  logic clk,rst; int data;
+  property p1; @(posedge clk) rst |-> data==0; endproperty
+  assert property(p1) $display("Q70 -> PASS"); else $display("Q70 -> FAIL");
+  initial begin
+    clk=0;rst=1;data=5;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q71: Signal must hold high for 2 cycles
+//-------------------------------------------------------------
+/*
+module q71;
+  logic clk,sig;
+  property p1; @(posedge clk) sig[*2]; endproperty
+  assert property(p1) $display("Q71 -> PASS"); else $display("Q71 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q72: Signal doesn’t stay high long enough
+//-------------------------------------------------------------
+/*
+module q72;
+  logic clk,sig;
+  property p1; @(posedge clk) sig[*2]; endproperty
+  assert property(p1) $display("Q72 -> PASS"); else $display("Q72 -> FAIL");
+  initial begin
+    clk=0;sig=1; #5 sig=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q73: Check handshake done after valid
+//-------------------------------------------------------------
+/*
+module q73;
+  logic clk,valid,done;
+  property p1; @(posedge clk) valid |=> ##1 done; endproperty
+  assert property(p1) $display("Q73 -> PASS"); else $display("Q73 -> FAIL");
+  initial begin
+    clk=0;valid=1;done=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q74: Fail handshake not done
+//-------------------------------------------------------------
+/*
+module q74;
+  logic clk,valid,done;
+  property p1; @(posedge clk) valid |=> ##1 done; endproperty
+  assert property(p1) $display("Q74 -> PASS"); else $display("Q74 -> FAIL");
+  initial begin
+    clk=0;valid=1;done=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q75: Signal should toggle every 2 cycles
+//-------------------------------------------------------------
+/*
+module q75;
+  logic clk,sig;
+  property p1; @(posedge clk) sig ##2 !sig; endproperty
+  assert property(p1) $display("Q75 -> PASS"); else $display("Q75 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q76: Fail signal doesn’t toggle
+//-------------------------------------------------------------
+/*
+module q76;
+  logic clk,sig;
+  property p1; @(posedge clk) sig ##2 !sig; endproperty
+  assert property(p1) $display("Q76 -> PASS"); else $display("Q76 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q77: Assert ready after valid
+//-------------------------------------------------------------
+/*
+module q77;
+  logic clk,valid,ready;
+  property p1; @(posedge clk) valid |-> ##1 ready; endproperty
+  assert property(p1) $display("Q77 -> PASS"); else $display("Q77 -> FAIL");
+  initial begin
+    clk=0;valid=1;ready=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q78: Fail ready missing after valid
+//-------------------------------------------------------------
+/*
+module q78;
+  logic clk,valid,ready;
+  property p1; @(posedge clk) valid |-> ##1 ready; endproperty
+  assert property(p1) $display("Q78 -> PASS"); else $display("Q78 -> FAIL");
+  initial begin
+    clk=0;valid=1;ready=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q79: Check counter increment correctly
+//-------------------------------------------------------------
+/*
+module q79;
+  logic clk; int cnt=0;
+  property p1; @(posedge clk) cnt |=> cnt+1; endproperty
+  assert property(p1) $display("Q79 -> PASS"); else $display("Q79 -> FAIL");
+  initial begin
+    clk=0;repeat(4) begin #5 clk=~clk; cnt++; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q80: Fail counter not incrementing
+//-------------------------------------------------------------
+/*
+module q80;
+  logic clk; int cnt=0;
+  property p1; @(posedge clk) cnt |=> cnt+1; endproperty
+  assert property(p1) $display("Q80 -> PASS"); else $display("Q80 -> FAIL");
+  initial begin
+    clk=0;repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q81: Check data stable during valid
+//-------------------------------------------------------------
+/*
+module q81;
+  logic clk,valid; int data=5;
+  property p1; @(posedge clk) valid |-> $stable(data); endproperty
+  assert property(p1) $display("Q81 -> PASS"); else $display("Q81 -> FAIL");
+  initial begin
+    clk=0;valid=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q82: Fail data changes during valid
+//-------------------------------------------------------------
+/*
+module q82;
+  logic clk,valid; int data=5;
+  property p1; @(posedge clk) valid |-> $stable(data); endproperty
+  assert property(p1) $display("Q82 -> PASS"); else $display("Q82 -> FAIL");
+  initial begin
+    clk=0;valid=1;
+    #10 data=10;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q83: Check start followed by done within 3 cycles
+//-------------------------------------------------------------
+/*
+module q83;
+  logic clk,start,done;
+  property p1; @(posedge clk) start |-> ##[1:3] done; endproperty
+  assert property(p1) $display("Q83 -> PASS"); else $display("Q83 -> FAIL");
+  initial begin
+    clk=0;start=1; #10 done=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q84: Fail done missing within 3 cycles
+//-------------------------------------------------------------
+/*
+module q84;
+  logic clk,start,done;
+  property p1; @(posedge clk) start |-> ##[1:3] done; endproperty
+  assert property(p1) $display("Q84 -> PASS"); else $display("Q84 -> FAIL");
+  initial begin
+    clk=0;start=1;done=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q85: Signal high implies it stays high next cycle
+//-------------------------------------------------------------
+/*
+module q85;
+  logic clk,sig;
+  property p1; @(posedge clk) sig |=> sig; endproperty
+  assert property(p1) $display("Q85 -> PASS"); else $display("Q85 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q86: Fail signal low next cycle
+//-------------------------------------------------------------
+/*
+module q86;
+  logic clk,sig;
+  property p1; @(posedge clk) sig |=> sig; endproperty
+  assert property(p1) $display("Q86 -> PASS"); else $display("Q86 -> FAIL");
+  initial begin
+    clk=0;sig=1; #10 sig=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q87: Check no two enables active together
+//-------------------------------------------------------------
+/*
+module q87;
+  logic clk,en1,en2;
+  property p1; @(posedge clk) !(en1 && en2); endproperty
+  assert property(p1) $display("Q87 -> PASS"); else $display("Q87 -> FAIL");
+  initial begin
+    clk=0;en1=1;en2=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q88: Fail both enables high
+//-------------------------------------------------------------
+/*
+module q88;
+  logic clk,en1,en2;
+  property p1; @(posedge clk) !(en1 && en2); endproperty
+  assert property(p1) $display("Q88 -> PASS"); else $display("Q88 -> FAIL");
+  initial begin
+    clk=0;en1=1;en2=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q89: Assert reset low after 5ns
+//-------------------------------------------------------------
+/*
+module q89;
+  logic clk,rst;
+  property p1; @(posedge clk) ##1 !rst; endproperty
+  assert property(p1) $display("Q89 -> PASS"); else $display("Q89 -> FAIL");
+  initial begin
+    clk=0;rst=1;
+    #5 rst=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q90: Fail reset still high
+//-------------------------------------------------------------
+/*
+module q90;
+  logic clk,rst;
+  property p1; @(posedge clk) ##1 !rst; endproperty
+  assert property(p1) $display("Q90 -> PASS"); else $display("Q90 -> FAIL");
+  initial begin
+    clk=0;rst=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q91: Check output change after input toggle
+//-------------------------------------------------------------
+/*
+module q91;
+  logic clk,in,out;
+  property p1; @(posedge clk) $changed(in) |-> ##1 $changed(out); endproperty
+  assert property(p1) $display("Q91 -> PASS"); else $display("Q91 -> FAIL");
+  initial begin
+    clk=0;in=0;out=0;
+    #5 in=1; #10 out=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q92: Fail output didn’t change after input toggle
+//-------------------------------------------------------------
+/*
+module q92;
+  logic clk,in,out;
+  property p1; @(posedge clk) $changed(in) |-> ##1 $changed(out); endproperty
+  assert property(p1) $display("Q92 -> PASS"); else $display("Q92 -> FAIL");
+  initial begin
+    clk=0;in=0;out=0;
+    #5 in=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q93: Check counter wraps to 0 after 9
+//-------------------------------------------------------------
+/*
+module q93;
+  logic clk; int cnt=9;
+  property p1; @(posedge clk) (cnt==9) |=> (cnt==0); endproperty
+  assert property(p1) $display("Q93 -> PASS"); else $display("Q93 -> FAIL");
+  initial begin
+    clk=0;cnt=9; #5 cnt=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q94: Fail counter didn’t wrap
+//-------------------------------------------------------------
+/*
+module q94;
+  logic clk; int cnt=9;
+  property p1; @(posedge clk) (cnt==9) |=> (cnt==0); endproperty
+  assert property(p1) $display("Q94 -> PASS"); else $display("Q94 -> FAIL");
+  initial begin
+    clk=0;cnt=9;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q95: Check signal rises then falls in 2 cycles
+//-------------------------------------------------------------
+/*
+module q95;
+  logic clk,sig;
+  property p1; @(posedge clk) $rose(sig) |-> ##2 $fell(sig); endproperty
+  assert property(p1) $display("Q95 -> PASS"); else $display("Q95 -> FAIL");
+  initial begin
+    clk=0;sig=0; #5 sig=1; #15 sig=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q96: Fail fall missing after rise
+//-------------------------------------------------------------
+/*
+module q96;
+  logic clk,sig;
+  property p1; @(posedge clk) $rose(sig) |-> ##2 $fell(sig); endproperty
+  assert property(p1) $display("Q96 -> PASS"); else $display("Q96 -> FAIL");
+  initial begin
+    clk=0;sig=0; #5 sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q97: Check enable deasserts before done
+//-------------------------------------------------------------
+/*
+module q97;
+  logic clk,en,done;
+  property p1; @(posedge clk) done |-> !en; endproperty
+  assert property(p1) $display("Q97 -> PASS"); else $display("Q97 -> FAIL");
+  initial begin
+    clk=0;en=0;done=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q98: Fail enable still high when done
+//-------------------------------------------------------------
+/*
+module q98;
+  logic clk,en,done;
+  property p1; @(posedge clk) done |-> !en; endproperty
+  assert property(p1) $display("Q98 -> PASS"); else $display("Q98 -> FAIL");
+  initial begin
+    clk=0;en=1;done=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+
+
+//-------------------------------------------------------------
+// Q99: Assertion that signal should remain high for 4 cycles
+//-------------------------------------------------------------
+/*
+module q99;
+  logic clk,sig;
+  property p1; @(posedge clk) sig[*4]; endproperty
+  assert property(p1) $display("Q99 -> PASS"); else $display("Q99 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q100: Assertion that signal should remain low for 2 cycles
+//-------------------------------------------------------------
+/*
+module q100;
+  logic clk,sig;
+  property p1; @(posedge clk) !sig[*2]; endproperty
+  assert property(p1) $display("Q100 -> PASS"); else $display("Q100 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q101: Assertion using not operator on property
+//-------------------------------------------------------------
+/*
+module q101;
+  logic clk,a,b;
+  property p1; @(posedge clk) !(a && b); endproperty
+  assert property(p1) $display("Q101 -> PASS"); else $display("Q101 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q102: Assertion for signal toggling every clock
+//-------------------------------------------------------------
+/*
+module q102;
+  logic clk,sig;
+  property p1; @(posedge clk) $changed(sig); endproperty
+  assert property(p1) $display("Q102 -> PASS"); else $display("Q102 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    repeat(6) begin #5 sig=~sig; clk=~clk; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q103: Assertion for reset high disables property
+//-------------------------------------------------------------
+/*
+module q103;
+  logic clk,rst,a;
+  property p1; @(posedge clk) disable iff(rst) a; endproperty
+  assert property(p1) $display("Q103 -> PASS"); else $display("Q103 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=1;
+    #10 rst=0;a=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q104: Assertion sequence with delay 3 cycles
+//-------------------------------------------------------------
+/*
+module q104;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> ##3 b; endproperty
+  assert property(p1) $display("Q104 -> PASS"); else $display("Q104 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #10 a=1;
+    #25 b=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q105: Assertion for stable signal for 5 cycles
+//-------------------------------------------------------------
+/*
+module q105;
+  logic clk,sig;
+  property p1; @(posedge clk) $stable(sig)[*5]; endproperty
+  assert property(p1) $display("Q105 -> PASS"); else $display("Q105 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q106: Assertion when signal increases each cycle
+//-------------------------------------------------------------
+/*
+module q106;
+  logic clk;
+  int count=0;
+  property p1; @(posedge clk) $rose(count); endproperty
+  assert property(p1) $display("Q106 -> PASS"); else $display("Q106 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(6) begin #5 count++; clk=~clk; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q107: Assertion using and with implication
+//-------------------------------------------------------------
+/*
+module q107;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) (a && b) |-> c; endproperty
+  assert property(p1) $display("Q107 -> PASS"); else $display("Q107 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;c=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q108: Assertion using or with implication fail
+//-------------------------------------------------------------
+/*
+module q108;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) (a || b) |-> c; endproperty
+  assert property(p1) $display("Q108 -> PASS"); else $display("Q108 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;c=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q109: Assertion using throughout operator
+//-------------------------------------------------------------
+/*
+module q109;
+  logic clk,a,b;
+  property p1; @(posedge clk) a throughout b[*3]; endproperty
+  assert property(p1) $display("Q109 -> PASS"); else $display("Q109 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q110: Assertion checking sequence ends with b
+//-------------------------------------------------------------
+/*
+module q110;
+  logic clk,a,b;
+  sequence s1; a ##1 b; endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q110 -> PASS"); else $display("Q110 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q111: Assertion sequence a then !a
+//-------------------------------------------------------------
+/*
+module q111;
+  logic clk,a;
+  sequence s1; a ##1 !a; endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q111 -> PASS"); else $display("Q111 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    #10 a=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q112: Assertion for non-blocking overlap
+//-------------------------------------------------------------
+/*
+module q112;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q112 -> PASS"); else $display("Q112 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #5 a=1;
+    #10 b=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q113: Assertion checking $past value
+//-------------------------------------------------------------
+/*
+module q113;
+  logic clk,a,b;
+  property p1; @(posedge clk) $past(a) |-> b; endproperty
+  assert property(p1) $display("Q113 -> PASS"); else $display("Q113 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q114: Assertion with $fell trigger
+//-------------------------------------------------------------
+/*
+module q114;
+  logic clk,a;
+  property p1; @(posedge clk) $fell(a); endproperty
+  assert property(p1) $display("Q114 -> PASS"); else $display("Q114 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    #10 a=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q115: Assertion when a goes high, b must follow
+//-------------------------------------------------------------
+/*
+module q115;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##1 b; endproperty
+  assert property(p1) $display("Q115 -> PASS"); else $display("Q115 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #10 a=1;
+    #15 b=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q116: Assertion that a never high when b low
+//-------------------------------------------------------------
+/*
+module q116;
+  logic clk,a,b;
+  property p1; @(posedge clk) !(a && !b); endproperty
+  assert property(p1) $display("Q116 -> PASS"); else $display("Q116 -> FAIL");
+  initial begin
+    clk=0;a=0;b=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q117: Assertion ensuring signal toggles twice
+//-------------------------------------------------------------
+/*
+module q117;
+  logic clk,a;
+  sequence s1; $rose(a) ##1 $fell(a); endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q117 -> PASS"); else $display("Q117 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1;
+    #10 a=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q118: Assertion signal stays high till reset
+//-------------------------------------------------------------
+/*
+module q118;
+  logic clk,a,rst;
+  property p1; @(posedge clk) a |-> a until rst; endproperty
+  assert property(p1) $display("Q118 -> PASS"); else $display("Q118 -> FAIL");
+  initial begin
+    clk=0;a=1;rst=0;
+    #25 rst=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q119: Assertion signal b follows a for next cycle
+//-------------------------------------------------------------
+/*
+module q119;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q119 -> PASS"); else $display("Q119 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q120: Assertion end — always true property
+//-------------------------------------------------------------
+/*
+module q120;
+  logic clk;
+  property p1; @(posedge clk) 1; endproperty
+  assert property(p1) $display("Q120 -> PASS"); else $display("Q120 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+
+
+
+
+
+//-------------------------------------------------------------
+// Q121: Assertion that signal never unknown (X/Z)
+//-------------------------------------------------------------
+/*
+module q121;
+  logic clk, sig;
+  property p1; @(posedge clk) !$isunknown(sig); endproperty
+  assert property(p1) $display("Q121 -> PASS"); else $display("Q121 -> FAIL");
+  initial begin
+    clk=0; sig=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q122: Assertion that b should be high 2 cycles after a
+//-------------------------------------------------------------
+/*
+module q122;
+  logic clk, a, b;
+  property p1; @(posedge clk) a |=> ##2 b; endproperty
+  assert property(p1) $display("Q122 -> PASS"); else $display("Q122 -> FAIL");
+  initial begin
+    clk=0; a=0; b=0;
+    #10 a=1; #20 b=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q123: Assertion that reset low disables property
+//-------------------------------------------------------------
+/*
+module q123;
+  logic clk, rst, en;
+  property p1; @(posedge clk) disable iff(!rst) en; endproperty
+  assert property(p1) $display("Q123 -> PASS"); else $display("Q123 -> FAIL");
+  initial begin
+    clk=0; rst=1; en=1;
+    #15 rst=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q124: Assertion signal must toggle once every 3 cycles
+//-------------------------------------------------------------
+/*
+module q124;
+  logic clk, sig;
+  property p1; @(posedge clk) $changed(sig)[*3]; endproperty
+  assert property(p1) $display("Q124 -> PASS"); else $display("Q124 -> FAIL");
+  initial begin
+    clk=0; sig=1;
+    repeat(6) begin #5 clk=~clk; sig=~sig; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q125: Assertion sequence a then b then c
+//-------------------------------------------------------------
+/*
+module q125;
+  logic clk, a, b, c;
+  sequence s1; a ##1 b ##1 c; endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q125 -> PASS"); else $display("Q125 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;c=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q126: Assertion a implies b within 1 to 3 cycles
+//-------------------------------------------------------------
+/*
+module q126;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##[1:3] b; endproperty
+  assert property(p1) $display("Q126 -> PASS"); else $display("Q126 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q127: Assertion a should stay high for 2 cycles after rising
+//-------------------------------------------------------------
+/*
+module q127;
+  logic clk,a;
+  property p1; @(posedge clk) $rose(a) |-> a[*2]; endproperty
+  assert property(p1) $display("Q127 -> PASS"); else $display("Q127 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #10 a=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q128: Assertion to check counter increments
+//-------------------------------------------------------------
+/*
+module q128;
+  logic clk;
+  int cnt=0;
+  property p1; @(posedge clk) $rose(cnt); endproperty
+  assert property(p1) $display("Q128 -> PASS"); else $display("Q128 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(5) begin #5 cnt++; clk=~clk; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q129: Assertion that signal remains constant for 3 cycles
+//-------------------------------------------------------------
+/*
+module q129;
+  logic clk,sig;
+  property p1; @(posedge clk) $stable(sig)[*3]; endproperty
+  assert property(p1) $display("Q129 -> PASS"); else $display("Q129 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q130: Assertion to check signal toggles every 2 cycles
+//-------------------------------------------------------------
+/*
+module q130;
+  logic clk,sig;
+  property p1; @(posedge clk) sig |=> ##2 !sig; endproperty
+  assert property(p1) $display("Q130 -> PASS"); else $display("Q130 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    #10 sig=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q131: Assertion to check valid and ready handshake
+//-------------------------------------------------------------
+/*
+module q131;
+  logic clk,valid,ready;
+  property p1; @(posedge clk) valid |-> ##1 ready; endproperty
+  assert property(p1) $display("Q131 -> PASS"); else $display("Q131 -> FAIL");
+  initial begin
+    clk=0;valid=0;ready=0;
+    #10 valid=1; #15 ready=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q132: Assertion checking $rose followed by $fell
+//-------------------------------------------------------------
+/*
+module q132;
+  logic clk,a;
+  property p1; @(posedge clk) $rose(a) ##1 $fell(a); endproperty
+  assert property(p1) $display("Q132 -> PASS"); else $display("Q132 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #10 a=1; #20 a=0;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q133: Assertion to ensure signal not X
+//-------------------------------------------------------------
+/*
+module q133;
+  logic clk,sig;
+  property p1; @(posedge clk) !$isunknown(sig); endproperty
+  assert property(p1) $display("Q133 -> PASS"); else $display("Q133 -> FAIL");
+  initial begin
+    clk=0;sig=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q134: Assertion to check a rises then b high within 2 cycles
+//-------------------------------------------------------------
+/*
+module q134;
+  logic clk,a,b;
+  property p1; @(posedge clk) $rose(a) |-> ##[1:2] b; endproperty
+  assert property(p1) $display("Q134 -> PASS"); else $display("Q134 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    #10 a=1; #15 b=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q135: Assertion that enable high keeps output stable
+//-------------------------------------------------------------
+/*
+module q135;
+  logic clk,en,out;
+  property p1; @(posedge clk) en |-> $stable(out); endproperty
+  assert property(p1) $display("Q135 -> PASS"); else $display("Q135 -> FAIL");
+  initial begin
+    clk=0;en=1;out=1;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q136: Assertion that counter within range
+//-------------------------------------------------------------
+/*
+module q136;
+  logic clk;
+  int cnt=5;
+  property p1; @(posedge clk) cnt inside {[0:10]}; endproperty
+  assert property(p1) $display("Q136 -> PASS"); else $display("Q136 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q137: Assertion check that b follows a on next edge
+//-------------------------------------------------------------
+/*
+module q137;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q137 -> PASS"); else $display("Q137 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q138: Assertion check reset clears flag
+//-------------------------------------------------------------
+/*
+module q138;
+  logic clk,rst,flag;
+  property p1; @(posedge clk) rst |-> !flag; endproperty
+  assert property(p1) $display("Q138 -> PASS"); else $display("Q138 -> FAIL");
+  initial begin
+    clk=0;rst=1;flag=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q139: Assertion that signal toggles exactly once
+//-------------------------------------------------------------
+/*
+module q139;
+  logic clk,a;
+  sequence s1; $rose(a) ##1 $fell(a); endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q139 -> PASS"); else $display("Q139 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #10 a=1; #20 a=0;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q140: Assertion signal remains high till reset
+//-------------------------------------------------------------
+/*
+module q140;
+  logic clk,a,rst;
+  property p1; @(posedge clk) a |-> a until rst; endproperty
+  assert property(p1) $display("Q140 -> PASS"); else $display("Q140 -> FAIL");
+  initial begin
+    clk=0;a=1;rst=0;
+    #25 rst=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q141: Assertion that x rises twice within 5 cycles
+//-------------------------------------------------------------
+/*
+module q141;
+  logic clk,x;
+  sequence s1; $rose(x)[*2]; endsequence
+  property p1; @(posedge clk) s1; endproperty
+  assert property(p1) $display("Q141 -> PASS"); else $display("Q141 -> FAIL");
+  initial begin
+    clk=0;x=0;
+    #10 x=1; #20 x=0; #25 x=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q142: Assertion signal remains 0 for 4 cycles
+//-------------------------------------------------------------
+/*
+module q142;
+  logic clk,sig;
+  property p1; @(posedge clk) !sig[*4]; endproperty
+  assert property(p1) $display("Q142 -> PASS"); else $display("Q142 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q143: Assertion that $fell(reset) triggers a=0
+//-------------------------------------------------------------
+/*
+module q143;
+  logic clk,rst,a;
+  property p1; @(posedge clk) $fell(rst) |-> (a==0); endproperty
+  assert property(p1) $display("Q143 -> PASS"); else $display("Q143 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=0;
+    #15 rst=0;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q144: Assertion that signal should toggle every other clk
+//-------------------------------------------------------------
+/*
+module q144;
+  logic clk,sig;
+  property p1; @(posedge clk) sig |=> ##2 !sig; endproperty
+  assert property(p1) $display("Q144 -> PASS"); else $display("Q144 -> FAIL");
+  initial begin
+    clk=0;sig=0;
+    #10 sig=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q145: Assertion with inside range check fail
+//-------------------------------------------------------------
+/*
+module q145;
+  logic clk;
+  int val=15;
+  property p1; @(posedge clk) val inside {[1:10]}; endproperty
+  assert property(p1) $display("Q145 -> PASS"); else $display("Q145 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q146: Assertion that $changed triggers within 2 cycles
+//-------------------------------------------------------------
+/*
+module q146;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a)[*2]; endproperty
+  assert property(p1) $display("Q146 -> PASS"); else $display("Q146 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    repeat(4) begin #5 a=~a; clk=~clk; end
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q147: Assertion a implies b for next 3 cycles
+//-------------------------------------------------------------
+/*
+module q147;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b[*3]; endproperty
+  assert property(p1) $display("Q147 -> PASS"); else $display("Q147 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(10) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q148: Assertion that signal stays same during enable
+//-------------------------------------------------------------
+/*
+module q148;
+  logic clk,en,data;
+  property p1; @(posedge clk) en |-> $stable(data); endproperty
+  assert property(p1) $display("Q148 -> PASS"); else $display("Q148 -> FAIL");
+  initial begin
+    clk=0;en=1;data=1;
+    repeat(8) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q149: Assertion that reset must be followed by enable low
+//-------------------------------------------------------------
+/*
+module q149;
+  logic clk,rst,en;
+  property p1; @(posedge clk) rst |-> ##1 !en; endproperty
+  assert property(p1) $display("Q149 -> PASS"); else $display("Q149 -> FAIL");
+  initial begin
+    clk=0;rst=1;en=0;
+    repeat(6) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q150: Assertion always true property for completeness
+//-------------------------------------------------------------
+/*
+module q150;
+  logic clk;
+  property p1; @(posedge clk) 1; endproperty
+  assert property(p1) $display("Q150 -> PASS"); else $display("Q150 -> FAIL");
+  initial begin
+    clk=0;
+    repeat(5) #5 clk=~clk;
+  end
+endmodule
+*/
+
+
+
+//-------------------------------------------------------------
+// Q151: Simple assertion for signal high
+//-------------------------------------------------------------
+/*
+module q151;
+  logic clk, sig;
+  property p1; @(posedge clk) sig; endproperty
+  assert property(p1) $display("Q151 -> PASS"); else $display("Q151 -> FAIL");
+  initial begin
+    clk=0; sig=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q152: Assertion to check low signal
+//-------------------------------------------------------------
+/*
+module q152;
+  logic clk, sig;
+  property p1; @(posedge clk) !sig; endproperty
+  assert property(p1) $display("Q152 -> PASS"); else $display("Q152 -> FAIL");
+  initial begin
+    clk=0; sig=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q153: Check for stable signal using $stable
+//-------------------------------------------------------------
+/*
+module q153;
+  logic clk, sig;
+  property p1; @(posedge clk) $stable(sig); endproperty
+  assert property(p1) $display("Q153 -> PASS"); else $display("Q153 -> FAIL");
+  initial begin
+    clk=0; sig=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q154: Assertion fail for unstable signal
+//-------------------------------------------------------------
+/*
+module q154;
+  logic clk, sig;
+  property p1; @(posedge clk) $stable(sig); endproperty
+  assert property(p1) $display("Q154 -> PASS"); else $display("Q154 -> FAIL");
+  initial begin
+    clk=0; sig=0;
+    #5 sig=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q155: Check signal rise using $rose
+//-------------------------------------------------------------
+/*
+module q155;
+  logic clk, sig;
+  property p1; @(posedge clk) $rose(sig); endproperty
+  assert property(p1) $display("Q155 -> PASS"); else $display("Q155 -> FAIL");
+  initial begin
+    clk=0; sig=0;
+    #5 sig=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q156: Check signal fall using $fell
+//-------------------------------------------------------------
+/*
+module q156;
+  logic clk, sig;
+  property p1; @(posedge clk) $fell(sig); endproperty
+  assert property(p1) $display("Q156 -> PASS"); else $display("Q156 -> FAIL");
+  initial begin
+    clk=0; sig=1;
+    #5 sig=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q157: Assertion with multiple conditions
+//-------------------------------------------------------------
+/*
+module q157;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a && b); endproperty
+  assert property(p1) $display("Q157 -> PASS"); else $display("Q157 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q158: Sequential check using ## delay
+//-------------------------------------------------------------
+/*
+module q158;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##2 b; endproperty
+  assert property(p1) $display("Q158 -> PASS"); else $display("Q158 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q159: Assertion using or in antecedent
+//-------------------------------------------------------------
+/*
+module q159;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a || b) |-> b; endproperty
+  assert property(p1) $display("Q159 -> PASS"); else $display("Q159 -> FAIL");
+  initial begin
+    clk=0;a=0;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q160: Assertion disabled with reset
+//-------------------------------------------------------------
+/*
+module q160;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) a |-> b; endproperty
+  assert property(p1) $display("Q160 -> PASS"); else $display("Q160 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=1;b=0;
+    #5 rst=0;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q161: Assertion inside always block
+//-------------------------------------------------------------
+/*
+module q161;
+  logic clk,a,b;
+  always @(posedge clk)
+    assert(a==b) $display("Q161 -> PASS"); else $display("Q161 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q162: Assertion using not operator
+//-------------------------------------------------------------
+/*
+module q162;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> !b; endproperty
+  assert property(p1) $display("Q162 -> PASS"); else $display("Q162 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q163: Check signal after 3 cycles
+//-------------------------------------------------------------
+/*
+module q163;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##3 b; endproperty
+  assert property(p1) $display("Q163 -> PASS"); else $display("Q163 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #15 b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q164: Immediate assertion inside initial block
+//-------------------------------------------------------------
+/*
+module q164;
+  int x=5;
+  initial begin
+    assert(x>0) $display("Q164 -> PASS"); else $display("Q164 -> FAIL");
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q165: Assertion for signal toggle
+//-------------------------------------------------------------
+/*
+module q165;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q165 -> PASS"); else $display("Q165 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q166: Check signal remains high for 2 cycles
+//-------------------------------------------------------------
+/*
+module q166;
+  logic clk,a;
+  property p1; @(posedge clk) a[*2]; endproperty
+  assert property(p1) $display("Q166 -> PASS"); else $display("Q166 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q167: Check sequence of signals
+//-------------------------------------------------------------
+/*
+module q167;
+  logic clk,a,b;
+  property p1; @(posedge clk) a ##1 b; endproperty
+  assert property(p1) $display("Q167 -> PASS"); else $display("Q167 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #5 b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q168: Assertion with repeat range
+//-------------------------------------------------------------
+/*
+module q168;
+  logic clk,a;
+  property p1; @(posedge clk) a[*1:3]; endproperty
+  assert property(p1) $display("Q168 -> PASS"); else $display("Q168 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q169: Assertion using overlapped implication
+//-------------------------------------------------------------
+/*
+module q169;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q169 -> PASS"); else $display("Q169 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q170: Assertion using non-overlapped implication
+//-------------------------------------------------------------
+/*
+module q170;
+  logic clk,a,b;
+  property p1; 
+  @(posedge clk) a |-> b;
+  endproperty
+  assert property(p1) 
+  $display("Q170 -> PASS"); 
+  else 
+  $display("Q170 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+
+
+//-------------------------------------------------------------
+// Q171: Check signal high after one clock
+//-------------------------------------------------------------
+/*
+module q171;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##1 b; endproperty
+  assert property(p1) $display("Q171 -> PASS"); else $display("Q171 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #5 b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q172: Assertion with OR condition
+//-------------------------------------------------------------
+/*
+module q172;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a || b); endproperty
+  assert property(p1) $display("Q172 -> PASS"); else $display("Q172 -> FAIL");
+  initial begin
+    clk=0;a=0;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q173: Assertion to detect $changed signal
+//-------------------------------------------------------------
+/*
+module q173;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q173 -> PASS"); else $display("Q173 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q174: Assertion check reset disable
+//-------------------------------------------------------------
+/*
+module q174;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) a |-> b; endproperty
+  assert property(p1) $display("Q174 -> PASS"); else $display("Q174 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=1;b=0;
+    #5 rst=0;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q175: Assertion fail for non-matching signals
+//-------------------------------------------------------------
+/*
+module q175;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b; endproperty
+  assert property(p1) $display("Q175 -> PASS"); else $display("Q175 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q176: Assertion with $rose check
+//-------------------------------------------------------------
+/*
+module q176;
+  logic clk,a;
+  property p1; @(posedge clk) $rose(a); endproperty
+  assert property(p1) $display("Q176 -> PASS"); else $display("Q176 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q177: Assertion using $fell
+//-------------------------------------------------------------
+/*
+module q177;
+  logic clk,a;
+  property p1; @(posedge clk) $fell(a); endproperty
+  assert property(p1) $display("Q177 -> PASS"); else $display("Q177 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    #5 a=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q178: Assertion using 2-cycle sequence
+//-------------------------------------------------------------
+/*
+module q178;
+  logic clk,a,b;
+  property p1; @(posedge clk) a ##2 b; endproperty
+  assert property(p1) $display("Q178 -> PASS"); else $display("Q178 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q179: Assertion for signal staying high 3 cycles
+//-------------------------------------------------------------
+/*
+module q179;
+  logic clk,a;
+  property p1; @(posedge clk) a[*3]; endproperty
+  assert property(p1) $display("Q179 -> PASS"); else $display("Q179 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q180: Assertion using $stable check
+//-------------------------------------------------------------
+/*
+module q180;
+  logic clk,a;
+  property p1; @(posedge clk) $stable(a); endproperty
+  assert property(p1) $display("Q180 -> PASS"); else $display("Q180 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q181: Assertion for signal change fail
+//-------------------------------------------------------------
+/*
+module q181;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q181 -> PASS"); else $display("Q181 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q182: Assertion using both a and b
+//-------------------------------------------------------------
+/*
+module q182;
+  logic clk,a,b;
+  property p1; @(posedge clk) (a && b); endproperty
+  assert property(p1) $display("Q182 -> PASS"); else $display("Q182 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q183: Assertion with a |-> ##3 b
+//-------------------------------------------------------------
+/*
+module q183;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##3 b; endproperty
+  assert property(p1) $display("Q183 -> PASS"); else $display("Q183 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #15 b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q184: Assertion with overlapped implication |=> 
+//-------------------------------------------------------------
+/*
+module q184;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |=> b; endproperty
+  assert property(p1) $display("Q184 -> PASS"); else $display("Q184 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q185: Assertion for no change in b when a=0
+//-------------------------------------------------------------
+/*
+module q185;
+  logic clk,a,b;
+  property p1; @(posedge clk) (!a) |-> $stable(b); endproperty
+  assert property(p1) $display("Q185 -> PASS"); else $display("Q185 -> FAIL");
+  initial begin
+    clk=0;a=0;b=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q186: Assertion with $fell and b=1 check
+//-------------------------------------------------------------
+/*
+module q186;
+  logic clk,a,b;
+  property p1; @(posedge clk) $fell(a) |-> b; endproperty
+  assert property(p1) $display("Q186 -> PASS"); else $display("Q186 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    #5 a=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q187: Assertion check for rising and falling
+//-------------------------------------------------------------
+/*
+module q187;
+  logic clk,a;
+  property p1; @(posedge clk) $rose(a) or $fell(a); endproperty
+  assert property(p1) $display("Q187 -> PASS"); else $display("Q187 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1; #5 a=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q188: Assertion with sequence of 3 events
+//-------------------------------------------------------------
+/*
+module q188;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) a ##1 b ##1 c; endproperty
+  assert property(p1) $display("Q188 -> PASS"); else $display("Q188 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;c=0;
+    #5 b=1; #10 c=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q189: Assertion fail with wrong sequence
+//-------------------------------------------------------------
+/*
+module q189;
+  logic clk,a,b,c;
+  property p1; @(posedge clk) a ##1 b ##1 c; endproperty
+  assert property(p1) $display("Q189 -> PASS"); else $display("Q189 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;c=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q190: Assertion for toggle detection
+//-------------------------------------------------------------
+/*
+module q190;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q190 -> PASS"); else $display("Q190 -> FAIL");
+  initial begin
+    clk=0;a=0; #5 a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q191: Assertion for a followed by b after 2 cycles
+//-------------------------------------------------------------
+/*
+module q191;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##2 b; endproperty
+  assert property(p1) $display("Q191 -> PASS"); else $display("Q191 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q192: Assertion with delay range ##[1:3]
+//-------------------------------------------------------------
+/*
+module q192;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> ##[1:3] b; endproperty
+  assert property(p1) $display("Q192 -> PASS"); else $display("Q192 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    #10 b=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q193: Assertion to check $past value
+//-------------------------------------------------------------
+/*
+module q193;
+  logic clk,a;
+  property p1; @(posedge clk) a == $past(a); endproperty
+  assert property(p1) $display("Q193 -> PASS"); else $display("Q193 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q194: Assertion using $rose and $fell both
+//-------------------------------------------------------------
+/*
+module q194;
+  logic clk,a;
+  property p1; @(posedge clk) $rose(a) or $fell(a); endproperty
+  assert property(p1) $display("Q194 -> PASS"); else $display("Q194 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    #5 a=1; #10 a=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q195: Assertion check reset sequence
+//-------------------------------------------------------------
+/*
+module q195;
+  logic clk,rst;
+  property p1; @(posedge clk) rst |-> ##1 !rst; endproperty
+  assert property(p1) $display("Q195 -> PASS"); else $display("Q195 -> FAIL");
+  initial begin
+    clk=0;rst=1;
+    #5 rst=0;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q196: Assertion for both signals true
+//-------------------------------------------------------------
+/*
+module q196;
+  logic clk,a,b;
+  property p1; @(posedge clk) a && b; endproperty
+  assert property(p1) $display("Q196 -> PASS"); else $display("Q196 -> FAIL");
+  initial begin
+    clk=0;a=1;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q197: Assertion using disable iff reset with |=> 
+//-------------------------------------------------------------
+/*
+module q197;
+  logic clk,rst,a,b;
+  property p1; @(posedge clk) disable iff(rst) a |=> b; endproperty
+  assert property(p1) $display("Q197 -> PASS"); else $display("Q197 -> FAIL");
+  initial begin
+    clk=0;rst=1;a=1;b=0;
+    #5 rst=0;b=1;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q198: Assertion fail with missing response
+//-------------------------------------------------------------
+/*
+module q198;
+  logic clk,a,b;
+  property p1; @(posedge clk) a |-> b; endproperty
+  assert property(p1) $display("Q198 -> PASS"); else $display("Q198 -> FAIL");
+  initial begin
+    clk=0;a=1;b=0;
+    repeat(4) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q199: Assertion with 2-cycle hold
+//-------------------------------------------------------------
+/*
+module q199;
+  logic clk,a;
+  property p1; @(posedge clk) a[*2]; endproperty
+  assert property(p1) $display("Q199 -> PASS"); else $display("Q199 -> FAIL");
+  initial begin
+    clk=0;a=1;
+    repeat(3) #5 clk=~clk;
+  end
+endmodule
+*/
+
+//-------------------------------------------------------------
+// Q200: Assertion for signal toggling every clock
+//-------------------------------------------------------------
+/*
+module q200;
+  logic clk,a;
+  property p1; @(posedge clk) $changed(a); endproperty
+  assert property(p1) $display("Q200 -> PASS"); else $display("Q200 -> FAIL");
+  initial begin
+    clk=0;a=0;
+    forever begin
+      #5 a=~a; clk=~clk;
+    end
+  end
+endmodule
+*/
+
+
+
+
+
+
