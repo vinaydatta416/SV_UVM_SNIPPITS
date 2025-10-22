@@ -1,5 +1,4 @@
-//// Question 1: Integer Types
-// What is the output of the following code?
+// Question 1: Integer Types
 /**
 #include <iostream>
 int main() {
@@ -10,7 +9,7 @@ int main() {
 }
 */
 //===========================================
-//// Question 2: Integer Types
+// Question 2: Integer Types
 // What is the size of a short in bytes?
 /**
 #include <iostream>
